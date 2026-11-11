@@ -4,7 +4,7 @@ on:
   pull_request:
     paths: ["backend/**", ".github/workflows/backend.yml"]
   push:
-    branches: [main]
+    branches: [main, develop]
     paths: ["backend/**", ".github/workflows/backend.yml"]
 
 concurrency:
