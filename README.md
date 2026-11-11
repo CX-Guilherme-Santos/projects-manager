@@ -18,6 +18,7 @@ Monorepo com a API em Rails e o frontend em Nuxt.
 ```bash
 # backend
 cd backend
+cp .env.example .env   # preencha com as credenciais do seu PostgreSQL
 bundle install
 bin/rails db:prepare
 
@@ -31,8 +32,8 @@ npm install
 npx playwright install chromium
 ```
 
-Por padrão o Rails conecta no PostgreSQL pelo socket local, com o seu usuário do sistema.
-Para usar outras credenciais, defina `DB_HOST`, `DB_PORT`, `DB_USERNAME` e `DB_PASSWORD`.
+O Rails lê as credenciais do banco de `backend/.env` (`DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`).
+Sem `DB_HOST`, ele conecta pelo socket local com o seu usuário do sistema.
 
 ## Rodando
 
