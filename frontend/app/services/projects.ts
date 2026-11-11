@@ -19,6 +19,9 @@ export function projectsService() {
       }
     },
 
+    // Registered projects, regardless of filters (title of the list page)
+    count: async () => (await $api<{ count: number }>('/projects/count')).count,
+
     get: (id: number | string) => $api<Project>(`/projects/${id}`),
 
     create: (body: FormData) => $api<Project>('/projects', { method: 'POST', body }),

@@ -3,6 +3,8 @@ import type { Project } from '~/types/project'
 
 // Grid shared by the home and the search results: loading states, infinite scroll,
 // favorite toggle and the delete confirmation.
+const emit = defineEmits<{ removed: [project: Project] }>()
+
 const { list, highlight, emptyTitle, emptyDescription } = defineProps<{
   list: ReturnType<typeof useProjectList>
   highlight?: string
@@ -36,7 +38,9 @@ async function confirmRemove() {
   removing.value = true
   removeError.value = ''
   try {
-    await list.remove(toRemove.value)
+    const removed = toRemove.value
+    await list.remove(removed)
+    emit('removed', removed)
     toRemove.value = null
   }
   catch {

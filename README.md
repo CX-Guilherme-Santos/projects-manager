@@ -67,6 +67,7 @@ Base: `/api/v1`. Respostas em JSON, mensagens de erro em pt-BR.
 | Método | Rota | Descrição |
 |---|---|---|
 | `GET` | `/projects` | Lista paginada. Parâmetros: `favorite=true`, `q` (3+ caracteres, busca no nome e no cliente), `sort` (`name` (padrão), `recent_start` ou `nearest_end`), `page` e `limit` (padrão 10, máximo 50) |
+| `GET` | `/projects/count` | Total de projetos cadastrados, sem filtros: `{ "count": 12 }` |
 | `GET` | `/projects/:id` | Um projeto |
 | `POST` | `/projects` | Cria. Corpo `multipart/form-data` com `project[name]`, `project[client]`, `project[start_date]`, `project[end_date]` e `project[cover]` (opcional) |
 | `PATCH` | `/projects/:id` | Edita, favorita (`project[favorite]`) ou remove a capa (`project[remove_cover]=true`) |

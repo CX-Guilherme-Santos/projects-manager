@@ -144,6 +144,18 @@ RSpec.describe "Api::V1::Projects" do
     end
   end
 
+  describe "GET /api/v1/projects/count" do
+    it "returns how many projects exist, ignoring list filters" do
+      create(:project, :favorite)
+      create_list(:project, 2)
+
+      get count_api_v1_projects_path, params: { favorite: "true", q: "xyz" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json).to eq("count" => 3)
+    end
+  end
+
   describe "GET /api/v1/projects/:id" do
     it "returns the project" do
       project = create(:project)

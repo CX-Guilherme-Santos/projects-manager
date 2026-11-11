@@ -5,7 +5,9 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :projects, only: %i[index show create update destroy]
+      resources :projects, only: %i[index show create update destroy] do
+        get :count, on: :collection
+      end
     end
   end
 end

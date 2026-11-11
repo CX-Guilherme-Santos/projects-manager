@@ -46,6 +46,12 @@ export function fakeProjectsApi(seed: Partial<Project>[]) {
     return rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   }))
 
+  const requests = { count: 0 }
+  cleanups.push(registerEndpoint(`${API}/projects/count`, () => {
+    requests.count += 1
+    return { count: db.length }
+  }))
+
   for (const project of db) {
     const url = `${API}/projects/${project.id}`
     cleanups.push(registerEndpoint(url, {
@@ -70,6 +76,7 @@ export function fakeProjectsApi(seed: Partial<Project>[]) {
 
   return {
     db,
+    requests,
     // makes requests without the favorite filter answer late (out-of-order responses)
     slowUnfiltered: (ms: number) => { latency.unfiltered = ms },
     fail: (method: 'PATCH' | 'DELETE') => failing.add(method),

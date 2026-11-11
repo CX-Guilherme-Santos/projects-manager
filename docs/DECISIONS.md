@@ -214,7 +214,7 @@ total-pages: 2
 |---|---|
 | "Próximos à data de finalização" | Primeiro os projetos ainda em andamento, do fim mais próximo ao mais distante. Os já encerrados vão para o final. Mostrar primeiro um projeto que terminou há meses não ajudaria ninguém |
 | Data final igual à inicial | Inválida: a data final precisa ser **posterior** à de início. No design, as duas datas iguais (01/01/2000) aparecem com erro |
-| Número no título "Projetos (N)" | Acompanha os filtros: sem filtro, é o total de projetos cadastrados; com "Apenas favoritos" ou uma busca, é quantos projetos aparecem. Vem do header `total-count` |
+| Número no título "Projetos (N)" | É o total de projetos **cadastrados**, como pedem o enunciado e o Figma (que mostra "(9)" com o filtro de favoritos ligado e 2 cards). Vem de `GET /projects/count`, chamado uma vez ao abrir a página. Filtros e ordenação não mudam o número, e uma remoção o atualiza na própria tela. A primeira versão mostrava o `total-count` da listagem, que acompanha os filtros, e divergia do enunciado |
 | Busca | Procura no nome e no cliente, sem diferenciar maiúsculas de minúsculas, a partir de 3 caracteres (no frontend e na API) |
 | Capa | Opcional, só .jpg ou .png, até 5 MB |
 | Tamanho do nome e do cliente | O enunciado não define. Até 100 caracteres, validado na API e no formulário (com `maxlength` no campo). No card, o texto que não cabe em uma linha termina em reticências, e o texto completo aparece ao passar o mouse |
@@ -355,7 +355,7 @@ Nada desta seção foi implementado. São melhorias possíveis, deixadas de fora
 |---|---|---|
 | Plugin | `plugins/api.ts` | Cria o único cliente HTTP (`$fetch.create` com a `baseURL` do `runtimeConfig`) |
 | Service | `services/projects.ts` | Chamadas a `/api/v1/projects`, sem estado. Converte os headers de paginação (`total-count`, `link`) em `{ projects, total, hasNext }` |
-| Composable | `composables/useProjectList.ts`, `useSearchHistory.ts` | Estado e regras da tela: páginas carregadas, favoritar, remover, histórico |
+| Composable | `composables/useProjectList.ts`, `useProjectCount.ts`, `useSearchHistory.ts` | Estado e regras da tela: páginas carregadas, favoritar, remover, total cadastrado, histórico |
 | Schema e utils | `schemas/project.ts`, `utils/*` | Funções puras: regras do formulário, datas por extenso, destaque da busca, `FormData` |
 | Componentes | `components/base/*`, `components/project/*`, `components/search/*` | Apresentação. `base/` não conhece o domínio (botão, select, modal, campo de formulário) |
 | Páginas | `pages/*` | Compõem as camadas e ligam a URL ao estado |
@@ -387,7 +387,7 @@ Nada desta seção foi implementado. São melhorias possíveis, deixadas de fora
 
 ## 22. Favorito otimista, remoção confirmada
 
-**Favoritar:** a estrela muda na hora e o `PATCH` vai em seguida. Se a API falhar, a estrela volta ao estado anterior. É uma ação leve, fácil de desfazer, e esperar a rede a cada clique deixaria a tela lenta. Com o filtro "Apenas favoritos" ligado, desfavoritar tira o card da lista e diminui a contagem.
+**Favoritar:** a estrela muda na hora e o `PATCH` vai em seguida. Se a API falhar, a estrela volta ao estado anterior. É uma ação leve, fácil de desfazer, e esperar a rede a cada clique deixaria a tela lenta. Com o filtro "Apenas favoritos" ligado, desfavoritar tira o card da lista (o número do título, que é o total cadastrado, não muda).
 
 **Remover:** não é otimista. O modal fica aberto com o botão em carregamento até a API confirmar, e mostra uma mensagem se der erro. Uma remoção que "volta" depois de sumir seria mais confusa do que esperar meio segundo.
 
@@ -430,8 +430,6 @@ O arquivo do Figma estava disponível só para visualização, sem o Dev Mode (q
 **Elementos refeitos:**
 - **A ilustração do card sem capa** foi redesenhada em SVG a partir da imagem, porque não havia o arquivo original.
 - **Os campos de data** são um componente próprio (`BaseDateInput`): texto com máscara dd/mm/aaaa e um calendário em pt-BR com as cores do projeto. Clicar no campo abre o calendário sem tirar o foco dele, então dá para digitar ou escolher. Pelo teclado, a seta para baixo entra no calendário (setas, Enter, Esc), e o Tab segue para o próximo campo e fecha o calendário. A primeira versão usava o `<input type="date">` nativo, mas ele segue o idioma do navegador (mm/dd/yyyy num Chrome em inglês) e o calendário que ele abre não aceita estilo. O valor enviado à API continua sendo `YYYY-MM-DD`, e a conversão está em funções puras testadas (`maskBrDate`, `parseBrDate`, `calendarWeeks`).
-
-**Diferença intencional:** no Figma, a tela com "Apenas favoritos" ligado mostra "(9)" com 2 cards. Aqui o número acompanha o filtro (seção 12).
 
 ## 26. Testes do frontend com TDD
 

@@ -16,6 +16,13 @@ module Api
         render json: projects, each_serializer: Api::V1::ProjectSerializer
       end
 
+      # GET /api/v1/projects/count
+      # Total of registered projects for the page title, regardless of the list filters
+      # (the filtered count of the list is in its `total-count` header).
+      def count
+        render json: { count: Project.count }
+      end
+
       def show
         render json: @project, serializer: Api::V1::ProjectSerializer
       end

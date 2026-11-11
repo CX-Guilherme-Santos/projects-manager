@@ -29,11 +29,14 @@ const favoritesOnly = computed({
 })
 
 const list = useProjectList(() => ({ sort: sort.value, favorite: favoritesOnly.value }))
-const { total, status, projects } = list
 
-// The empty state of the design is for "no projects at all", not for an empty filter
-const hasNoProjects = computed(() => status.value === 'ready' && total.value === 0 && !favoritesOnly.value)
-const isFirstLoad = computed(() => status.value === 'loading' && projects.value.length === 0)
+// "Projetos (N)" is the number of registered projects, as the requirements and the
+// design ask (the Figma shows 9 with only 2 favorites listed): fetched once, filters
+// don't change it, removals update it locally
+const { count, failed: countFailed, decrement } = useProjectCount()
+
+// The empty state of the design is for "no projects registered", not for an empty filter
+const hasNoProjects = computed(() => count.value === 0)
 </script>
 
 <template>
@@ -57,14 +60,14 @@ const isFirstLoad = computed(() => status.value === 'loading' && projects.value.
         <h1 class="list-header__title d-flex align-items-baseline gap-2 m-0">
           Projetos
           <span
-            v-if="isFirstLoad"
+            v-if="count !== null"
+            class="list-header__count fw-normal"
+          >({{ count }})</span>
+          <span
+            v-else-if="!countFailed"
             class="list-header__count-placeholder skeleton"
             aria-hidden="true"
           />
-          <span
-            v-else
-            class="list-header__count fw-normal"
-          >({{ total }})</span>
         </h1>
         <div class="list-header__controls d-flex flex-wrap align-items-center">
           <BaseSwitch
@@ -90,6 +93,7 @@ const isFirstLoad = computed(() => status.value === 'loading' && projects.value.
         :list="list"
         empty-title="Nenhum projeto favorito"
         empty-description="Marque a estrela de um projeto para vê-lo aqui."
+        @removed="decrement"
       >
         <template #empty-action>
           <BaseButton
