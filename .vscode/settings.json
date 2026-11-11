@@ -1,0 +1,19 @@
+{
+  // ESLint config lives in frontend/, not at the repo root
+  "eslint.workingDirectories": ["frontend"],
+  "eslint.useFlatConfig": true,
+
+  // ESLint formats JS/TS/Vue (stylistic rules), so disable other formatters there
+  "[javascript][typescript][vue]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" }
+  },
+
+  // RuboCop formats Ruby through Ruby LSP
+  "[ruby]": {
+    "editor.defaultFormatter": "Shopify.ruby-lsp",
+    "editor.formatOnSave": true
+  },
+  "rubyLsp.formatter": "rubocop",
+  "rubyLsp.bundleGemfile": "backend/Gemfile"
+}

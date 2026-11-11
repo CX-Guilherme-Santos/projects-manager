@@ -1,0 +1,39 @@
+{
+  "name": "frontend",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate:pages": "nuxt generate && rm -f .output/public/404.html"
+  },
+  "dependencies": {
+    "@vee-validate/zod": "^4.15.1",
+    "bootstrap": "^5.3.8",
+    "nuxt": "^4.6.4",
+    "vee-validate": "^4.15.1",
+    "vue": "^3.5.45",
+    "vue-router": "^5.4.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/test-utils": "^4.4.0",
+    "@vee-validate/nuxt": "^4.15.1",
+    "@vue/test-utils": "^2.5.1",
+    "eslint": "^10.14.0",
+    "happy-dom": "^21.0.4",
+    "sass": "^1.108.1",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0",
+    "vue-tsc": "^3.3.14"
+  }
+}

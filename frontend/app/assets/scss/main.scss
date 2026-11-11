@@ -1,0 +1,23 @@
+// 1. Bootstrap functions (must come before variable overrides)
+@import "bootstrap/scss/functions";
+
+// 2. Design tokens: override Bootstrap defaults here
+$primary: #695ccd;
+$danger: #b3001b;
+$body-bg: #f4f2ff;
+$enable-validation-icons: false;
+
+// 3. Only the Bootstrap parts we use
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/forms";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/card";
+@import "bootstrap/scss/utilities/api";
