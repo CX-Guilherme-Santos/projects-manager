@@ -8,28 +8,28 @@ module Api
 
       before_action :set_project, only: %i[show update destroy]
 
-      # Pagination goes in the response headers (see BaseController#paginate).
-      # meta.total is every project ever registered, unfiltered: the count in the page title.
+      # The body is a plain array; pagination and counts go in the response headers
+      # (see BaseController#paginate).
       def index
         projects = paginate(apply_scopes(Project.with_attached_cover))
 
-        render json: projects, root: "projects", meta: { total: Project.count }
+        render json: projects, each_serializer: Api::V1::ProjectSerializer
       end
 
       def show
-        render json: @project
+        render json: @project, serializer: Api::V1::ProjectSerializer
       end
 
       def create
         result = Projects::CreateService.call(attributes: project_params)
 
-        render_result(result, status: :created)
+        render_result(result, serializer: Api::V1::ProjectSerializer, status: :created)
       end
 
       def update
         result = Projects::UpdateService.call(project: @project, attributes: project_params)
 
-        render_result(result)
+        render_result(result, serializer: Api::V1::ProjectSerializer)
       end
 
       def destroy

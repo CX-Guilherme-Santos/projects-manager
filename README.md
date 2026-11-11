@@ -51,13 +51,13 @@ Base: `/api/v1`. Respostas em JSON, mensagens de erro em pt-BR.
 
 | Método | Rota | Descrição |
 |---|---|---|
-| `GET` | `/projects` | Lista paginada. Parâmetros: `favorite=true`, `q` (3+ caracteres, busca no nome e no cliente), `sort` (`name` (padrão), `recent_start` ou `nearest_end`), `page` e `limit` (padrão 12, máximo 50) |
+| `GET` | `/projects` | Lista paginada. Parâmetros: `favorite=true`, `q` (3+ caracteres, busca no nome e no cliente), `sort` (`name` (padrão), `recent_start` ou `nearest_end`), `page` e `limit` (padrão 10, máximo 50) |
 | `GET` | `/projects/:id` | Um projeto |
 | `POST` | `/projects` | Cria. Corpo `multipart/form-data` com `project[name]`, `project[client]`, `project[start_date]`, `project[end_date]` e `project[cover]` (opcional) |
 | `PATCH` | `/projects/:id` | Edita, favorita (`project[favorite]`) ou remove a capa (`project[remove_cover]=true`) |
 | `DELETE` | `/projects/:id` | Remove definitivamente |
 
-A listagem envia a paginação nos headers (`link` com `rel="next"`, `current-page`, `page-limit`, `total-count` e `total-pages`) e, no corpo, `{ "projects": [...], "meta": { "total": N } }`, em que `total` é o total de projetos cadastrados, sem filtro.
+A listagem devolve um array de projetos no corpo e a paginação nos headers: `link` (com `rel="next"` enquanto houver mais páginas), `current-page`, `page-limit`, `total-count` (projetos que atendem aos filtros) e `total-pages`. Os demais endpoints devolvem o projeto como um objeto, sem chave raiz.
 
 Erros de validação voltam com status `422` no formato `{ "errors": { "name": ["..."] } }`, com as mesmas chaves dos campos do formulário.
 

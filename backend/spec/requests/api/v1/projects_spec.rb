@@ -11,8 +11,7 @@ RSpec.describe "Api::V1::Projects" do
         get api_v1_projects_path
 
         expect(response).to have_http_status(:ok)
-        expect(json["projects"]).to eq([])
-        expect(json["meta"]).to eq("total" => 0)
+        expect(json).to eq([])
         expect(response.headers["total-count"]).to eq("0")
         expect(response.headers["link"]).not_to include('rel="next"')
       end
@@ -23,7 +22,7 @@ RSpec.describe "Api::V1::Projects" do
 
       get api_v1_projects_path
 
-      expect(json["projects"].first.except("created_at", "updated_at")).to eq(
+      expect(json.first.except("created_at", "updated_at")).to eq(
         "id" => project.id, "name" => "Projeto Iridium", "client" => "Clicksign",
         "start_date" => "2026-09-01", "end_date" => "2026-12-12", "favorite" => true, "cover_url" => nil
       )
@@ -38,13 +37,13 @@ RSpec.describe "Api::V1::Projects" do
       it "sorts alphabetically by default" do
         get api_v1_projects_path
 
-        expect(json["projects"].pluck("name")).to eq([ "Projeto antigo", "Projeto novo" ])
+        expect(json.pluck("name")).to eq([ "Projeto antigo", "Projeto novo" ])
       end
 
       it "sorts by the most recent start date with sort=recent_start" do
         get api_v1_projects_path, params: { sort: "recent_start" }
 
-        expect(json["projects"].pluck("name")).to eq([ "Projeto novo", "Projeto antigo" ])
+        expect(json.pluck("name")).to eq([ "Projeto novo", "Projeto antigo" ])
       end
 
       it "sorts by the closest end date with sort=nearest_end" do
@@ -52,7 +51,7 @@ RSpec.describe "Api::V1::Projects" do
           get api_v1_projects_path, params: { sort: "nearest_end" }
         end
 
-        expect(json["projects"].pluck("name")).to eq([ "Projeto novo", "Projeto antigo" ])
+        expect(json.pluck("name")).to eq([ "Projeto novo", "Projeto antigo" ])
       end
     end
 
@@ -65,19 +64,18 @@ RSpec.describe "Api::V1::Projects" do
       it "returns only favorites with favorite=true" do
         get api_v1_projects_path, params: { favorite: "true" }
 
-        expect(json["projects"].pluck("name")).to eq([ "Projeto favorito" ])
+        expect(json.pluck("name")).to eq([ "Projeto favorito" ])
       end
 
       it "returns every project with favorite=false" do
         get api_v1_projects_path, params: { favorite: "false" }
 
-        expect(json["projects"].size).to eq(2)
+        expect(json.size).to eq(2)
       end
 
-      it "keeps meta.total counting every project" do
+      it "counts only the filtered projects in total-count" do
         get api_v1_projects_path, params: { favorite: "true" }
 
-        expect(json.dig("meta", "total")).to eq(2)
         expect(response.headers["total-count"]).to eq("1")
       end
     end
@@ -93,27 +91,27 @@ RSpec.describe "Api::V1::Projects" do
       it "combines q with the other filters" do
         get api_v1_projects_path, params: { q: "iri", favorite: "true" }
 
-        expect(json["projects"].pluck("name")).to eq([ "Projeto Iridium" ])
+        expect(json.pluck("name")).to eq([ "Projeto Iridium" ])
       end
 
       it "ignores terms shorter than three characters" do
         get api_v1_projects_path, params: { q: "ir" }
 
-        expect(json["projects"].size).to eq(3)
+        expect(json.size).to eq(3)
       end
     end
 
     describe "pagination" do
       before do
-        13.times { |i| create(:project, name: "Projeto #{format('%02d', i)}") }
+        11.times { |i| create(:project, name: "Projeto #{format('%02d', i)}") }
       end
 
-      it "returns 12 projects per page and the pagination in the headers" do
+      it "returns 10 projects per page and the pagination in the headers" do
         get api_v1_projects_path
 
-        expect(json["projects"].size).to eq(12)
+        expect(json.size).to eq(10)
         expect(response.headers.to_h).to include(
-          "current-page" => "1", "page-limit" => "12", "total-count" => "13", "total-pages" => "2"
+          "current-page" => "1", "page-limit" => "10", "total-count" => "11", "total-pages" => "2"
         )
         expect(response.headers["link"]).to match(/<[^>]*page=2[^>]*>; rel="next"/)
       end
@@ -127,7 +125,7 @@ RSpec.describe "Api::V1::Projects" do
       it "returns the last page without a next link" do
         get api_v1_projects_path, params: { page: 2 }
 
-        expect(json["projects"].pluck("name")).to eq([ "Projeto 12" ])
+        expect(json.pluck("name")).to eq([ "Projeto 10" ])
         expect(response.headers["link"]).not_to include('rel="next"')
       end
 
@@ -153,7 +151,7 @@ RSpec.describe "Api::V1::Projects" do
       get api_v1_project_path(project)
 
       expect(response).to have_http_status(:ok)
-      expect(json.dig("project", "id")).to eq(project.id)
+      expect(json["id"]).to eq(project.id)
     end
 
     it "returns 404 for an unknown project" do
@@ -172,8 +170,8 @@ RSpec.describe "Api::V1::Projects" do
         .and change(ActiveStorage::Attachment, :count).by(1)
 
       expect(response).to have_http_status(:created)
-      expect(json.dig("project", "name")).to eq("Projeto Iridium")
-      expect(json.dig("project", "cover_url")).to match(%r{/rails/active_storage/})
+      expect(json["name"]).to eq("Projeto Iridium")
+      expect(json["cover_url"]).to match(%r{/rails/active_storage/})
     end
 
     it "ignores remove_cover" do
@@ -227,7 +225,7 @@ RSpec.describe "Api::V1::Projects" do
 
         expect(response).to have_http_status(:ok)
         expect(project.reload.cover).not_to be_attached
-        expect(json.dig("project", "cover_url")).to be_nil
+        expect(json["cover_url"]).to be_nil
       end
 
       it "keeps the cover when the edit is rejected" do

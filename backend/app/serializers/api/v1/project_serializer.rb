@@ -1,7 +1,7 @@
 module Api
   module V1
     # Part of the v1 API contract (the response shape). Business rules live in the model and services,
-    # which are not versioned. AMS finds this class from the controller namespace (Api::V1).
+    # which are not versioned.
     class ProjectSerializer < ActiveModel::Serializer
       attributes :id, :name, :client, :start_date, :end_date, :favorite, :cover_url, :created_at, :updated_at
 

@@ -154,35 +154,34 @@ has_scope :sorted_by, as: :sort, default: "name",     only: :index
 
 ## 9. Paginação com Pagy
 
-**Decisão:** paginação por offset com Pagy 43, 12 itens por página (o padrão) e no máximo 50 por requisição (`?limit=`).
+**Decisão:** paginação por offset com Pagy 43, 10 itens por página (o padrão) e no máximo 50 por requisição (`?limit=`). Com 5 cards por linha na grade do desktop, cada página fecha duas linhas completas.
 
 **Por quê:** a API não devolve a tabela inteira de uma vez. O design mostra todos os cards numa grade, então o frontend carrega as páginas seguintes sob demanda ("carregar mais" ou scroll infinito), sem paginação numerada na tela.
 
-**Paginação nos headers, dados no corpo:** o Pagy envia a paginação em headers HTTP ([RFC 8288](https://www.rfc-editor.org/rfc/rfc8288)), o mesmo formato de APIs como a do GitHub, e o corpo fica só com os dados:
+**Paginação nos headers, dados no corpo:** o Pagy envia a paginação em headers HTTP ([RFC 8288](https://www.rfc-editor.org/rfc/rfc8288)), o mesmo formato de APIs como a do GitHub, e o corpo é só o array de projetos:
 
 ```http
 HTTP/1.1 200 OK
-link: <https://.../api/v1/projects?page=1&limit=12>; rel="first", <https://.../api/v1/projects?page=2&limit=12>; rel="next", <https://.../api/v1/projects?page=2&limit=12>; rel="last"
+link: <https://.../api/v1/projects?page=1&limit=10>; rel="first", <https://.../api/v1/projects?page=2&limit=10>; rel="next", <https://.../api/v1/projects?page=2&limit=10>; rel="last"
 current-page: 1
-page-limit: 12
+page-limit: 10
 total-count: 13
 total-pages: 2
 
-{ "projects": [ ... ], "meta": { "total": 20 } }
+[ { "id": 1, "name": "Projeto Iridium", ... }, ... ]
 ```
 
 - **`link` com `rel="next"`** é o que o frontend segue no "carregar mais". Quando ele não vem, não há mais páginas. A URL já carrega os filtros atuais (`sort`, `q`, `favorite`), então o frontend não precisa remontá-la.
-- **`total-count`** conta os projetos que atendem aos filtros atuais.
-- **`meta.total`** fica no corpo porque não é paginação, é dado de negócio: o total de projetos **cadastrados**, sem filtro, que é o número do título "Projetos (20)" pedido no enunciado.
+- **`total-count`** conta os projetos que atendem aos filtros atuais, e é o número do título "Projetos (N)". Sem filtro, ele é o total de projetos cadastrados que o enunciado pede. Com "Apenas favoritos" ou uma busca ativa, o título acompanha o que está na tela (ver a seção 12).
 - **CORS:** o navegador esconde do JavaScript de outro domínio os headers que não estão na lista de headers simples. Os cinco headers de paginação são liberados com `expose` em `config/initializers/cors.rb`. Sem isso, o frontend no Cloudflare Pages não conseguiria lê-los.
 
 **Alternativa considerada:** paginação por keyset (cursor), mais eficiente em tabelas grandes e sem o problema de itens duplicados quando alguém cria um projeto entre duas páginas. Foi descartada porque a ordenação "próximos à data de finalização" usa uma expressão calculada (`end_date < hoje`), que complica o cursor. O volume do projeto também não justifica.
 
 ## 10. Serialização com Active Model Serializers
 
-**Decisão:** `active_model_serializers` 0.10 com o adapter `:json`, que coloca a raiz (`project` / `projects`) e o `meta` da paginação.
+**Decisão:** `active_model_serializers` 0.10 com o adapter `:attributes`, sem chave raiz: um projeto é um objeto, e a listagem é um array. Contagens e paginação ficam nos headers (seção 9), então o corpo não precisa de `meta`.
 
-**Por quê:** o formato de cada recurso fica numa classe só (`ProjectSerializer`), reaproveitada no `index`, no `show`, no `create` e no `update`.
+**Por quê:** o formato de cada recurso fica numa classe só (`Api::V1::ProjectSerializer`), reaproveitada no `index`, no `show`, no `create` e no `update`. O serializer fica no namespace da versão porque o formato da resposta é parte do contrato da v1. As regras de negócio (model e services) não têm versão. O controller cita o serializer explicitamente em cada resposta (`serializer:` / `each_serializer:`), em vez de depender da busca automática do AMS pelo namespace, para ficar claro de onde vem o formato.
 
 **Custo conhecido:** a série 0.10 está em modo de manutenção. Se o projeto crescesse, a troca natural seria o **Alba**, que é ativo e mais rápido, com uma API parecida.
 
@@ -204,6 +203,7 @@ total-pages: 2
 |---|---|
 | "Próximos à data de finalização" | Primeiro os projetos ainda em andamento, do fim mais próximo ao mais distante. Os já encerrados vão para o final. Mostrar primeiro um projeto que terminou há meses não ajudaria ninguém |
 | Data final igual à inicial | Inválida: a data final precisa ser **posterior** à de início. No design, as duas datas iguais (01/01/2000) aparecem com erro |
+| Número no título "Projetos (N)" | Acompanha os filtros: sem filtro, é o total de projetos cadastrados; com "Apenas favoritos" ou uma busca, é quantos projetos aparecem. Vem do header `total-count` |
 | Busca | Procura no nome e no cliente, sem diferenciar maiúsculas de minúsculas, a partir de 3 caracteres (no frontend e na API) |
 | Capa | Opcional, só .jpg ou .png, até 5 MB |
 | Fuso horário | `America/Sao_Paulo`, para "hoje" na ordenação ser o dia no Brasil, não em UTC |

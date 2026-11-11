@@ -17,11 +17,9 @@ module Api
       end
 
       # Renders a service result: the serialized record on success, field errors otherwise.
-      # The serializer is inferred from the controller namespace and the record class
-      # (Api::V1 + Project -> Api::V1::ProjectSerializer).
-      def render_result(result, status: :ok)
+      def render_result(result, serializer:, status: :ok)
         if result.success?
-          render json: result.record, status: status
+          render json: result.record, serializer: serializer, status: status
         else
           unprocessable(result.record)
         end
