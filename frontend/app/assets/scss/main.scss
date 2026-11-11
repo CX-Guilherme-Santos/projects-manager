@@ -99,6 +99,8 @@ $btn-disabled-opacity: 1;
   --bs-btn-bg: #fff;
 }
 
+@import "skeleton";
+
 // 6. Page building blocks shared by several pages
 .page-heading {
   display: grid;

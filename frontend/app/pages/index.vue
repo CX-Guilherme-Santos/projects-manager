@@ -58,7 +58,7 @@ const isFirstLoad = computed(() => status.value === 'loading' && projects.value.
           Projetos
           <span
             v-if="isFirstLoad"
-            class="list-header__count-placeholder"
+            class="list-header__count-placeholder skeleton"
             aria-hidden="true"
           />
           <span
@@ -131,8 +131,6 @@ const isFirstLoad = computed(() => status.value === 'loading' && projects.value.
 .list-header__count-placeholder {
   width: 32px;
   height: 18px;
-  border-radius: 4px;
-  background: #e6e2fb;
 }
 
 .list-header__controls {
