@@ -45,6 +45,20 @@ bin/dev
 
 Sobe a API em http://localhost:3000 e o frontend em http://localhost:3001. `Ctrl+C` para os dois.
 
+## Fluxo de trabalho (GitFlow)
+
+| Branch | Para quê | Sai de | Volta para |
+|---|---|---|---|
+| `main` | Produção. Cada merge é uma versão com tag (`v1.0.0`) e dispara o deploy do backend | — | — |
+| `develop` | Integração. É o branch padrão do repositório | `main` | — |
+| `feature/*` | Uma funcionalidade (`feature/project-list`) | `develop` | `develop`, por PR |
+| `release/*` | Fechamento de uma versão (`release/1.0.0`) | `develop` | `main` (com tag) e `develop` |
+| `hotfix/*` | Correção urgente em produção | `main` | `main` (com tag) e `develop` |
+
+Os PRs entram com commit de merge (sem squash), para o histórico mostrar cada branch. O CI roda em todo PR e nos pushes para `main` e `develop`.
+
+As mensagens de commit seguem o [Conventional Commits](https://www.conventionalcommits.org/pt-br/): `feat(api): ...`, `fix(frontend): ...`, `refactor:`, `docs:`, `ci:`, `chore:`.
+
 ## API
 
 Base: `/api/v1`. Respostas em JSON, mensagens de erro em pt-BR.

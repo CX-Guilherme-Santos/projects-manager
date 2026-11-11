@@ -4,7 +4,7 @@ on:
   pull_request:
     paths: ["backend/**", "frontend/**", "e2e/**", ".tool-versions", ".github/workflows/e2e.yml"]
   push:
-    branches: [main]
+    branches: [main, develop]
     paths: ["backend/**", "frontend/**", "e2e/**", ".tool-versions", ".github/workflows/e2e.yml"]
 
 concurrency:

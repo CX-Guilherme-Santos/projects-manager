@@ -1,8 +1,10 @@
-# Monthly, one grouped PR per ecosystem (instead of one PR per package)
+# Monthly, one grouped PR per ecosystem (instead of one PR per package).
+# GitFlow: update PRs target develop, never main.
 version: 2
 updates:
   - package-ecosystem: bundler
     directory: "/backend"
+    target-branch: develop
     schedule:
       interval: monthly
     open-pull-requests-limit: 2
@@ -12,6 +14,7 @@ updates:
 
   - package-ecosystem: npm
     directory: "/frontend"
+    target-branch: develop
     schedule:
       interval: monthly
     open-pull-requests-limit: 2
@@ -28,6 +31,7 @@ updates:
 
   - package-ecosystem: npm
     directory: "/e2e"
+    target-branch: develop
     schedule:
       interval: monthly
     open-pull-requests-limit: 2
@@ -37,6 +41,7 @@ updates:
 
   - package-ecosystem: github-actions
     directory: "/"
+    target-branch: develop
     schedule:
       interval: monthly
     open-pull-requests-limit: 2

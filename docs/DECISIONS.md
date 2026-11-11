@@ -21,6 +21,7 @@ Registro das principais escolhas do projeto: o contexto, o que foi decidido, o q
 15. [Um único idioma (pt-BR), sem suporte a vários idiomas](#15-um-único-idioma-pt-br-sem-suporte-a-vários-idiomas)
 16. [Sem autenticação nem limite de requisições](#16-sem-autenticação-nem-limite-de-requisições)
 17. [Possíveis evoluções](#17-possíveis-evoluções)
+18. [GitFlow e Conventional Commits](#18-gitflow-e-conventional-commits)
 
 ---
 
@@ -321,4 +322,18 @@ Nada desta seção foi implementado. São melhorias possíveis, deixadas de fora
 - **Favoritar sem esperar a API:** a estrela muda na hora e volta atrás se a requisição falhar.
 - **Auditoria de acessibilidade automatizada** (axe nos testes do Playwright).
 - **Cabeçalhos de segurança no Pages**, como Content Security Policy.
+
+## 18. GitFlow e Conventional Commits
+
+**Decisão:** branches no modelo GitFlow (`main`, `develop`, `feature/*`, `release/*`, `hotfix/*`) e mensagens de commit no padrão Conventional Commits. O fluxo está descrito no README.
+
+**Como o fluxo se liga ao CI e ao deploy:**
+- **`develop`** é o branch padrão do GitHub, então todo PR aponta para ele por padrão. Cada feature entra por PR, com commit de merge, para o histórico mostrar quando cada funcionalidade entrou.
+- **`main`** só recebe `release/*` e `hotfix/*`. Como um push no `main` dispara o deploy do backend no Heroku (seção 13), produção só muda quando uma versão é fechada.
+- **CI** em todo PR e nos pushes para `main` e `develop`. O Cloudflare Pages publica o `main` em produção e gera um preview para os outros branches.
+- **Dependabot** abre os PRs de atualização no `develop`, nunca direto no `main`.
+
+**Histórico anterior ao fluxo:** os três primeiros commits (estrutura inicial, ajustes do Cloudflare Pages e do CI, deploy do backend) foram feitos direto no `main`, antes da adoção do GitFlow, e foram mantidos como estão para não reescrever um histórico já publicado. A partir da API de projetos, tudo entra por `feature/*` → `develop`.
+
+**Por que commit de merge e não squash:** com squash, cada feature viraria um commit só no `develop`, e os commits menores (com as mensagens explicando cada passo) sumiriam do histórico. Com o merge, o histórico do `develop` mostra a feature entrando e preserva os commits dela.
 
