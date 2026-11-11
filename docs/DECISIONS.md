@@ -426,7 +426,7 @@ O arquivo do Figma estava disponível só para visualização, sem o Dev Mode (q
 
 **Elementos refeitos:**
 - **A ilustração do card sem capa** foi redesenhada em SVG a partir da imagem, porque não havia o arquivo original.
-- **Os campos de data** usam o `<input type="date">` nativo (dd/mm/aaaa nos navegadores em português, seletor nativo no celular). O ícone do navegador dá lugar ao ícone do design, e o campo vazio esconde a máscara de formato, como no Figma.
+- **Os campos de data** são um componente próprio (`BaseDateInput`): texto com máscara dd/mm/aaaa e um calendário em pt-BR com as cores do projeto, navegável pelo teclado (setas, Enter, Esc). A primeira versão usava o `<input type="date">` nativo, mas ele segue o idioma do navegador (mm/dd/yyyy num Chrome em inglês) e o calendário que ele abre não aceita estilo. O valor enviado à API continua sendo `YYYY-MM-DD`, e a conversão está em funções puras testadas (`maskBrDate`, `parseBrDate`, `calendarWeeks`).
 
 **Diferença intencional:** no Figma, a tela com "Apenas favoritos" ligado mostra "(9)" com 2 cards. Aqui o número acompanha o filtro (seção 12).
 

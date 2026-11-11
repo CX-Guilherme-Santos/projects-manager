@@ -8,7 +8,8 @@ const VALID = { name: 'Projeto Iridium', client: 'Clicksign', start_date: '2026-
 async function fill(form: VueWrapper, values: Partial<typeof VALID>) {
   for (const [field, value] of Object.entries(values)) {
     const input = form.get(`[name="${field}"]`)
-    await input.setValue(value)
+    // dates are typed the way the user sees them: dd/mm/aaaa
+    await input.setValue(field.endsWith('_date') ? formatBrDate(value) : value)
     await input.trigger('blur')
   }
 }
@@ -69,6 +70,7 @@ describe('ProjectForm', () => {
     const form = await mountSuspended(ProjectForm, { props: { save: vi.fn(), project } })
 
     expect((form.get('[name="name"]').element as HTMLInputElement).value).toBe('Projeto Iridium')
+    expect((form.get('[name="start_date"]').element as HTMLInputElement).value).toBe('01/09/2026')
     await vi.waitFor(() => expect(saveButton(form).attributes()).not.toHaveProperty('disabled'))
   })
 })
