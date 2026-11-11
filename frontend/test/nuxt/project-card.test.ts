@@ -37,6 +37,14 @@ describe('ProjectCard', () => {
     expect(card.find('b').exists()).toBe(false)
   })
 
+  it('keeps the full name and client in a tooltip, since long ones are cut with an ellipsis', async () => {
+    const name = `Projeto ${'muito '.repeat(15)}longo`
+    const card = await mountSuspended(ProjectCard, { props: { project: buildProject({ name, client: 'Cliente Gigante S.A.' }) } })
+
+    expect(card.get('h2').attributes('title')).toBe(name)
+    expect(card.get('.project-card__client').attributes('title')).toBe('Cliente Gigante S.A.')
+  })
+
   describe('options menu', () => {
     async function openMenu() {
       const card = await mountSuspended(ProjectCard, { props: { project: buildProject({ id: 7 }) } })

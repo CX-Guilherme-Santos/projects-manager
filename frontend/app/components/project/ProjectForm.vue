@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
-import { projectSchema } from '~/schemas/project'
+import { TEXT_MAX_LENGTH, projectSchema } from '~/schemas/project'
 import type { Project } from '~/types/project'
 
 const { project, save } = defineProps<{
@@ -68,6 +68,7 @@ const onSubmit = handleSubmit(async (values) => {
         v-bind="nameAttrs"
         name="name"
         type="text"
+        :maxlength="TEXT_MAX_LENGTH"
         class="form-control"
         :class="{ 'is-invalid': field.invalid }"
         :aria-invalid="field.invalid"
@@ -87,6 +88,7 @@ const onSubmit = handleSubmit(async (values) => {
         v-bind="clientAttrs"
         name="client"
         type="text"
+        :maxlength="TEXT_MAX_LENGTH"
         class="form-control"
         :class="{ 'is-invalid': field.invalid }"
         :aria-invalid="field.invalid"

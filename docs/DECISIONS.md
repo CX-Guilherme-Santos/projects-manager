@@ -217,6 +217,7 @@ total-pages: 2
 | Número no título "Projetos (N)" | Acompanha os filtros: sem filtro, é o total de projetos cadastrados; com "Apenas favoritos" ou uma busca, é quantos projetos aparecem. Vem do header `total-count` |
 | Busca | Procura no nome e no cliente, sem diferenciar maiúsculas de minúsculas, a partir de 3 caracteres (no frontend e na API) |
 | Capa | Opcional, só .jpg ou .png, até 5 MB |
+| Tamanho do nome e do cliente | O enunciado não define. Até 100 caracteres, validado na API e no formulário (com `maxlength` no campo). No card, o texto que não cabe em uma linha termina em reticências, e o texto completo aparece ao passar o mouse |
 | Fuso horário | `America/Sao_Paulo`, para "hoje" na ordenação ser o dia no Brasil, não em UTC |
 
 ## 13. Testes e CI

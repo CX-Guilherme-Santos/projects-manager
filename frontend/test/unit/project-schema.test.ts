@@ -23,6 +23,14 @@ describe('projectSchema', () => {
     expect(errorsFor({ name: '  Iridium  ' }).name).toEqual(['Por favor, digite ao menos duas palavras'])
   })
 
+  it('limits the name and the client to 100 characters, like the API', () => {
+    expect(errorsFor({ name: `Projeto ${'a'.repeat(92)}`, client: 'c'.repeat(100) })).toEqual({})
+
+    const errors = errorsFor({ name: `Projeto ${'a'.repeat(93)}`, client: 'c'.repeat(101) })
+    expect(errors.name).toEqual(['Use no máximo 100 caracteres'])
+    expect(errors.client).toEqual(['Use no máximo 100 caracteres'])
+  })
+
   it('requires at least one word in the client', () => {
     expect(errorsFor({ client: '   ' }).client).toEqual(['Por favor, digite ao menos uma palavra'])
   })

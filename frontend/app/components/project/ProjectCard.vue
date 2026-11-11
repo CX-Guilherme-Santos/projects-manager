@@ -47,13 +47,19 @@ const emit = defineEmits<{ toggleFavorite: [], remove: [] }>()
     </div>
 
     <div class="px-4 pt-4 pb-3">
-      <h2 class="project-card__name mb-2 fw-bold">
+      <h2
+        class="project-card__name mb-2 fw-bold text-truncate"
+        :title="project.name"
+      >
         <HighlightText
           :text="project.name"
           :term="highlight"
         />
       </h2>
-      <p class="project-card__client mb-0 pb-3">
+      <p
+        class="project-card__client mb-0 pb-3 text-truncate"
+        :title="project.client"
+      >
         <strong class="fw-semibold me-1">Cliente:</strong> <HighlightText
           :text="project.client"
           :term="highlight"
@@ -118,13 +124,11 @@ const emit = defineEmits<{ toggleFavorite: [], remove: [] }>()
 
 .project-card__name {
   font-size: 1.25rem;
-  overflow-wrap: anywhere;
 }
 
 .project-card__client {
   border-bottom: 1px solid var(--pm-divider);
   color: var(--pm-gray);
-  overflow-wrap: anywhere;
 }
 
 .project-card__dates {
