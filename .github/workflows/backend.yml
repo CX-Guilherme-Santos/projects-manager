@@ -7,6 +7,10 @@ on:
     branches: [main]
     paths: ["backend/**", ".github/workflows/backend.yml"]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     working-directory: backend

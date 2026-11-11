@@ -2,8 +2,14 @@ name: E2E
 
 on:
   pull_request:
+    paths: ["backend/**", "frontend/**", "e2e/**", ".tool-versions", ".github/workflows/e2e.yml"]
   push:
     branches: [main]
+    paths: ["backend/**", "frontend/**", "e2e/**", ".tool-versions", ".github/workflows/e2e.yml"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   playwright:

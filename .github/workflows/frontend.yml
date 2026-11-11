@@ -7,6 +7,10 @@ on:
     branches: [main]
     paths: ["frontend/**", ".tool-versions", ".github/workflows/frontend.yml"]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     working-directory: frontend
