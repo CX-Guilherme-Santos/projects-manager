@@ -17,6 +17,12 @@ export default defineNuxtConfig({
     },
   },
 
+  // Same output locally and on Cloudflare Pages (which auto-detects this preset anyway):
+  // `nuxt generate` writes to dist/ with a _headers file for long-term asset caching
+  nitro: {
+    preset: 'cloudflare-pages-static',
+  },
+
   // Used by `nuxt generate` (the Cloudflare build)
   $production: {
     runtimeConfig: {
