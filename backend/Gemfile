@@ -35,6 +35,11 @@ group :development, :test do
   # Loads backend/.env (local database credentials)
   gem "dotenv", "~> 3.2"
 
+  # Test framework and test data (also used by the Rails generators)
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "faker"
+
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
@@ -49,3 +54,13 @@ group :development, :test do
 end
 
 gem "aws-sdk-s3", "~> 1.241", require: false
+
+gem "pagy", "~> 43.8"
+gem "has_scope", "~> 0.9.0"
+
+gem "active_model_serializers", "~> 0.10.16"
+
+group :test do
+  # One-line matchers for common model validations
+  gem "shoulda-matchers"
+end

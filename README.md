@@ -2,6 +2,8 @@
 
 Monorepo com a API em Rails e o frontend em Nuxt.
 
+As decisões técnicas, com o que foi considerado e descartado, estão em [`docs/DECISIONS.md`](docs/DECISIONS.md).
+
 | Pasta | Stack | Porta |
 |---|---|---|
 | [`backend/`](backend) | Ruby 4.0, Rails 8.1 (API only), PostgreSQL | 3000 |
@@ -43,6 +45,22 @@ bin/dev
 
 Sobe a API em http://localhost:3000 e o frontend em http://localhost:3001. `Ctrl+C` para os dois.
 
+## API
+
+Base: `/api/v1`. Respostas em JSON, mensagens de erro em pt-BR.
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/projects` | Lista paginada. Parâmetros: `favorite=true`, `q` (3+ caracteres, busca no nome e no cliente), `sort` (`name` (padrão), `recent_start` ou `nearest_end`), `page` e `limit` (padrão 10, máximo 50) |
+| `GET` | `/projects/:id` | Um projeto |
+| `POST` | `/projects` | Cria. Corpo `multipart/form-data` com `project[name]`, `project[client]`, `project[start_date]`, `project[end_date]` e `project[cover]` (opcional) |
+| `PATCH` | `/projects/:id` | Edita, favorita (`project[favorite]`) ou remove a capa (`project[remove_cover]=true`) |
+| `DELETE` | `/projects/:id` | Remove definitivamente |
+
+A listagem devolve um array de projetos no corpo e a paginação nos headers: `link` (com `rel="next"` enquanto houver mais páginas), `current-page`, `page-limit`, `total-count` (projetos que atendem aos filtros) e `total-pages`. Os demais endpoints devolvem o projeto como um objeto, sem chave raiz.
+
+Erros de validação voltam com status `422` no formato `{ "errors": { "name": ["..."] } }`, com as mesmas chaves dos campos do formulário.
+
 ## Variáveis de ambiente
 
 | Variável | Onde | Padrão |
@@ -55,7 +73,7 @@ Sobe a API em http://localhost:3000 e o frontend em http://localhost:3001. `Ctrl
 
 | Camada | Ferramenta | Comando |
 |---|---|---|
-| Backend | Minitest, RuboCop, Brakeman | `cd backend && bin/rails test && bin/rubocop && bin/brakeman` |
+| Backend | RSpec (FactoryBot, shoulda-matchers), RuboCop, Brakeman | `cd backend && bundle exec rspec && bin/rubocop && bin/brakeman` |
 | Frontend | ESLint, vue-tsc, Vitest | `cd frontend && npm run lint && npm run typecheck && npm run test` |
 | Ponta a ponta | Playwright | `cd e2e && npm test` |
 

@@ -9,6 +9,9 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 
     resource "*",
       headers: :any,
-      methods: [ :get, :post, :put, :patch, :delete, :options, :head ]
+      methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
+      # Pagination headers set by Pagy (BaseController#paginate). Browsers hide non-safelisted
+      # response headers from cross-origin JavaScript unless they are exposed here.
+      expose: %w[link current-page page-limit total-count total-pages]
   end
 end
