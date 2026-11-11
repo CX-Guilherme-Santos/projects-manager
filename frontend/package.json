@@ -16,6 +16,7 @@
     "generate:pages": "nuxt generate && rm -f dist/404.html dist/_redirects"
   },
   "dependencies": {
+    "@nuxt/icon": "^2.6.2",
     "@vee-validate/zod": "^4.15.1",
     "bootstrap": "^5.3.8",
     "nuxt": "^4.6.4",
@@ -25,6 +26,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@iconify-json/ph": "^1.2.2",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/test-utils": "^4.4.0",
     "@vee-validate/nuxt": "^4.15.1",
