@@ -1,13 +1,40 @@
 // 1. Bootstrap functions (must come before variable overrides)
 @import "bootstrap/scss/functions";
 
-// 2. Design tokens: override Bootstrap defaults here
-$primary: #695ccd;
-$danger: #b3001b;
-$body-bg: #f4f2ff;
+// 2. Design tokens, then the Bootstrap defaults they override
+@import "tokens";
+
+$primary: $pm-primary;
+$danger: $pm-danger;
+$body-bg: $pm-bg;
+$body-color: $pm-dark;
+$font-family-sans-serif: $pm-font;
+$headings-color: $pm-heading;
+$headings-font-weight: 600;
+$border-color: $pm-border;
 $enable-validation-icons: false;
 
-// 3. Only the Bootstrap parts we use
+$input-color: $pm-dark;
+$input-border-color: $pm-gray;
+$input-border-radius: 4px;
+$input-padding-y: 0.4375rem; // 40px tall inputs
+$input-padding-x: 1rem;
+$input-focus-border-color: $pm-primary;
+$input-placeholder-color: $pm-gray-light;
+$form-feedback-font-size: 0.875rem;
+$form-invalid-color: $pm-danger;
+$form-invalid-border-color: $pm-danger;
+
+$form-check-input-bg: $pm-switch-off;
+$form-check-input-border: 0;
+$form-check-input-checked-bg-color: $pm-accent;
+$form-switch-color: #fff;
+$form-switch-focus-color: #fff;
+
+$btn-padding-x: 1.5rem;
+$btn-disabled-opacity: 1;
+
+// 3. Only the Bootstrap parts we use (dropdown, modal: own components)
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/variables-dark";
 @import "bootstrap/scss/maps";
@@ -19,5 +46,80 @@ $enable-validation-icons: false;
 @import "bootstrap/scss/grid";
 @import "bootstrap/scss/forms";
 @import "bootstrap/scss/buttons";
-@import "bootstrap/scss/card";
+@import "bootstrap/scss/spinners";
+@import "bootstrap/scss/helpers";
 @import "bootstrap/scss/utilities/api";
+
+// 4. App-wide CSS variables for the scoped styles of the components
+:root {
+  --pm-primary: #{$pm-primary};
+  --pm-primary-disabled: #{$pm-primary-disabled};
+  --pm-heading: #{$pm-heading};
+  --pm-dark: #{$pm-dark};
+  --pm-gray: #{$pm-gray};
+  --pm-gray-light: #{$pm-gray-light};
+  --pm-border: #{$pm-border};
+  --pm-divider: #{$pm-divider};
+  --pm-accent: #{$pm-accent};
+  --pm-danger: #{$pm-danger};
+  --pm-bg: #{$pm-bg};
+  --pm-backdrop: #{$pm-backdrop};
+  --pm-shadow: #{$pm-shadow};
+  --pm-header-height: #{$pm-header-height};
+  --pm-page-padding-x: #{$pm-page-padding-x};
+
+  @include media-breakpoint-down(md) {
+    --pm-page-padding-x: 16px;
+  }
+}
+
+// 5. Pill buttons from the design (two heights: 40px and 52px)
+.btn {
+  --bs-btn-border-radius: 999px;
+  --bs-btn-font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 40px;
+}
+
+.btn-lg {
+  --bs-btn-font-size: 1.25rem;
+  --bs-btn-padding-x: 2rem;
+  min-height: 52px;
+}
+
+.btn-primary {
+  --bs-btn-disabled-bg: #{$pm-primary-disabled};
+  --bs-btn-disabled-border-color: #{$pm-primary-disabled};
+}
+
+.btn-outline-primary {
+  --bs-btn-bg: #fff;
+}
+
+// 6. Page building blocks shared by several pages
+.page-heading {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  margin-bottom: 32px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+.form-panel {
+  padding: 52px 16px 52px;
+  border: 1px solid $pm-border;
+  border-radius: 4px;
+}
+
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
