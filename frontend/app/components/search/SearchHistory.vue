@@ -5,17 +5,17 @@ const emit = defineEmits<{ pick: [term: string], remove: [term: string] }>()
 
 <template>
   <ul
-    class="search-history"
+    class="list-unstyled m-0"
     aria-label="Buscas recentes"
   >
     <li
       v-for="term in terms"
       :key="term"
-      class="search-history__item"
+      class="search-history__item d-flex align-items-center"
     >
       <button
         type="button"
-        class="search-history__term"
+        class="search-history__term flex-grow-1 h-100 d-flex align-items-center border-0 text-start"
         @click="emit('pick', term)"
       >
         <Icon
@@ -26,7 +26,7 @@ const emit = defineEmits<{ pick: [term: string], remove: [term: string] }>()
       </button>
       <button
         type="button"
-        class="search-history__remove"
+        class="search-history__remove h-100 border-0"
         :aria-label="`Remover “${term}” do histórico`"
         @click="emit('remove', term)"
       >
@@ -40,30 +40,16 @@ const emit = defineEmits<{ pick: [term: string], remove: [term: string] }>()
 </template>
 
 <style scoped lang="scss">
-.search-history {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
 .search-history__item {
-  display: flex;
-  align-items: center;
   height: 52px;
   border-top: 1px solid var(--pm-bg);
 }
 
 .search-history__term {
-  flex: 1;
-  height: 100%;
-  display: flex;
-  align-items: center;
   gap: 12px;
   padding: 0 20px;
-  border: 0;
   background: none;
   color: var(--pm-gray);
-  text-align: left;
 
   &:hover,
   &:focus-visible {
@@ -73,9 +59,7 @@ const emit = defineEmits<{ pick: [term: string], remove: [term: string] }>()
 }
 
 .search-history__remove {
-  height: 100%;
   padding: 0 20px;
-  border: 0;
   background: none;
   color: var(--pm-gray);
 

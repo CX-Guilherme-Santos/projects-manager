@@ -46,24 +46,24 @@ onClickOutside(root, close)
 <template>
   <div
     ref="root"
-    class="search-bar"
+    class="search-bar position-absolute top-0 start-0 end-0 bg-white"
     :class="{ 'search-bar--expanded': showHistory }"
   >
     <form
-      class="search-bar__form"
+      class="search-bar__form d-flex align-items-center gap-3"
       role="search"
       @submit.prevent="search(term)"
     >
       <Icon
         name="ph:magnifying-glass-light"
         size="26"
-        class="search-bar__icon"
+        class="search-bar__icon flex-shrink-0"
       />
       <input
         ref="input"
         v-model="term"
         type="search"
-        class="search-bar__input"
+        class="search-bar__input flex-grow-1 border-0"
         placeholder="Digite o nome do projeto..."
         aria-label="Buscar projetos por nome ou cliente"
         autocomplete="off"
@@ -84,9 +84,6 @@ onClickOutside(root, close)
 
 <style scoped lang="scss">
 .search-bar {
-  position: absolute;
-  inset: 0 0 auto;
-  background: #fff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
 }
 
@@ -98,9 +95,6 @@ onClickOutside(root, close)
 
 .search-bar__form {
   height: var(--pm-header-height);
-  display: flex;
-  align-items: center;
-  gap: 16px;
   padding: 0 var(--pm-page-padding-x) 0 30px;
 }
 
@@ -110,14 +104,11 @@ onClickOutside(root, close)
 }
 
 .search-bar__icon {
-  flex-shrink: 0;
   color: var(--pm-primary);
 }
 
 .search-bar__input {
-  flex: 1;
   min-width: 0;
-  border: 0;
   outline: 0;
   color: var(--pm-dark);
   font-size: 1.125rem;

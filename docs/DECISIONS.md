@@ -55,6 +55,8 @@ Registro das principais escolhas do projeto: o contexto, o que foi decidido, o q
 
 **Por quê:** o design tem identidade própria. Com uma biblioteca de componentes (Vuetify, PrimeVue), boa parte do trabalho seria sobrescrever estilos. O Bootstrap entra para o que é genérico: layout responsivo, espaçamentos e estados de formulário (`.is-invalid`).
 
+**Utilitário ou CSS do componente:** o layout vai nas classes do Bootstrap no template (`d-flex`, `align-items-center`, `gap-3`, `position-absolute`, `sticky-top`, `p-0`, `fw-semibold`, `list-unstyled`). O `<style scoped>` fica só com o que é do design ou não tem classe: cores e tamanhos do Figma, bordas, sombras, valores fora da escala de espaçamento do Bootstrap (12, 32 e 40 px), `grid-template-columns`, regras responsivas, pseudo-elementos e tudo que muda com estado (`:hover`, selecionado). Esse último caso importa: os utilitários são `!important`, e um `bg-transparent` num item de menu anularia o fundo do hover.
+
 **Descartado:** `bootstrap-vue-next` e o JS do Bootstrap. Os componentes interativos do design (modal de remoção, menu do card e o select de ordenação) são componentes Vue próprios, com teclado e ARIA. O select é um listbox próprio porque o design estiliza as opções abertas, o que um `<select>` nativo não permite.
 
 ## 4. Validação de formulários com VeeValidate + Zod 3

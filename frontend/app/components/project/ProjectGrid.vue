@@ -61,7 +61,7 @@ async function toggleFavorite(project: Project) {
 <template>
   <div
     v-if="status === 'error'"
-    class="project-grid__error"
+    class="project-grid__error d-flex flex-column align-items-center gap-3"
     role="alert"
   >
     <p>Não foi possível carregar os projetos.</p>
@@ -83,7 +83,7 @@ async function toggleFavorite(project: Project) {
 
   <template v-else>
     <ul
-      class="project-grid"
+      class="project-grid d-grid list-unstyled m-0"
       :class="{ 'project-grid--reloading': isReloading }"
       :aria-busy="status === 'loading'"
     >
@@ -111,7 +111,7 @@ async function toggleFavorite(project: Project) {
 
     <div
       ref="sentinel"
-      class="project-grid__sentinel"
+      class="project-grid__sentinel d-flex justify-content-center"
     >
       <span
         v-if="loadingMore"
@@ -134,12 +134,8 @@ async function toggleFavorite(project: Project) {
 
 <style scoped lang="scss">
 .project-grid {
-  display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
   gap: 34px 32px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
   transition: opacity 0.15s ease;
 }
 
@@ -149,17 +145,11 @@ async function toggleFavorite(project: Project) {
 }
 
 .project-grid__sentinel {
-  display: flex;
-  justify-content: center;
   min-height: 1px;
   padding-top: 32px;
 }
 
 .project-grid__error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
   padding: 64px 16px;
   color: var(--pm-gray);
 }

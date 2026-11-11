@@ -5,7 +5,7 @@ const { to = '/' } = defineProps<{ to?: string }>()
 <template>
   <NuxtLink
     :to="to"
-    class="back-link"
+    class="back-link d-inline-flex align-items-center gap-2 text-decoration-none"
   >
     <Icon
       name="ph:arrow-left-light"
@@ -17,11 +17,7 @@ const { to = '/' } = defineProps<{ to?: string }>()
 
 <style scoped lang="scss">
 .back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   color: var(--pm-primary);
-  text-decoration: none;
 
   &:hover {
     text-decoration: underline;

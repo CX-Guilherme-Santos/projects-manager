@@ -101,7 +101,7 @@ onClickOutside(root, () => open.value && close())
 <template>
   <div
     ref="root"
-    class="date-input"
+    class="date-input position-relative"
     :class="{ 'date-input--invalid': invalid, 'date-input--open': open }"
     @keydown.esc="open && close({ returnFocus: true })"
   >
@@ -119,7 +119,7 @@ onClickOutside(root, () => open.value && close())
     >
     <button
       type="button"
-      class="date-input__toggle"
+      class="date-input__toggle position-absolute d-grid p-0 border-0 bg-transparent"
       aria-label="Abrir calendário"
       aria-haspopup="dialog"
       :aria-expanded="open"
@@ -135,15 +135,15 @@ onClickOutside(root, () => open.value && close())
     <div
       v-if="open"
       :id="calendarId"
-      class="calendar"
+      class="calendar position-absolute end-0 bg-white"
       role="dialog"
       aria-modal="false"
       :aria-label="`Calendário, ${monthLabel}`"
     >
-      <div class="calendar__header">
+      <div class="calendar__header d-flex align-items-center justify-content-between">
         <button
           type="button"
-          class="calendar__nav"
+          class="calendar__nav d-grid p-0 border-0 rounded-circle"
           aria-label="Mês anterior"
           @click="changeMonth(-1)"
         >
@@ -153,12 +153,12 @@ onClickOutside(root, () => open.value && close())
           />
         </button>
         <span
-          class="calendar__month"
+          class="calendar__month fw-semibold"
           aria-live="polite"
         >{{ monthLabel }}</span>
         <button
           type="button"
-          class="calendar__nav"
+          class="calendar__nav d-grid p-0 border-0 rounded-circle"
           aria-label="Próximo mês"
           @click="changeMonth(1)"
         >
@@ -171,7 +171,7 @@ onClickOutside(root, () => open.value && close())
 
       <table
         ref="grid"
-        class="calendar__grid"
+        class="calendar__grid w-100 text-center"
         role="grid"
         @keydown="onGridKeydown"
       >
@@ -181,6 +181,7 @@ onClickOutside(root, () => open.value && close())
               v-for="([short, full], index) in WEEKDAYS"
               :key="index"
               scope="col"
+              class="fw-normal"
               :abbr="full"
             >
               {{ short }}
@@ -198,7 +199,7 @@ onClickOutside(root, () => open.value && close())
             >
               <button
                 type="button"
-                class="calendar__day"
+                class="calendar__day p-0 rounded-circle"
                 :class="{
                   'calendar__day--outside': !day.inMonth,
                   'calendar__day--today': day.iso === today,
@@ -222,22 +223,15 @@ onClickOutside(root, () => open.value && close())
 
 <style scoped lang="scss">
 .date-input {
-  position: relative;
-
   .form-control {
     padding-right: 48px;
   }
 }
 
 .date-input__toggle {
-  position: absolute;
   top: 7px;
   right: 8px;
-  display: grid;
-  padding: 0;
-  border: 0;
   border-radius: 4px;
-  background: none;
   color: var(--pm-gray);
 
   &:hover,
@@ -255,27 +249,20 @@ onClickOutside(root, () => open.value && close())
 }
 
 .calendar {
-  position: absolute;
   top: calc(100% + 4px);
-  right: 0;
   z-index: 30;
   width: 304px;
   padding: 16px;
   border-radius: 8px;
-  background: #fff;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
 }
 
 .calendar__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 12px;
 }
 
 .calendar__month {
   color: var(--pm-heading);
-  font-weight: 600;
 
   &::first-letter {
     text-transform: uppercase;
@@ -285,11 +272,7 @@ onClickOutside(root, () => open.value && close())
 .calendar__nav {
   width: 32px;
   height: 32px;
-  display: grid;
   place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
   background: none;
   color: var(--pm-primary);
 
@@ -300,15 +283,12 @@ onClickOutside(root, () => open.value && close())
 }
 
 .calendar__grid {
-  width: 100%;
   border-collapse: collapse;
-  text-align: center;
 
   th {
     padding-bottom: 6px;
     color: var(--pm-gray);
     font-size: 0.8125rem;
-    font-weight: 400;
   }
 
   td {
@@ -319,9 +299,7 @@ onClickOutside(root, () => open.value && close())
 .calendar__day {
   width: 36px;
   height: 36px;
-  padding: 0;
   border: 1px solid transparent;
-  border-radius: 50%;
   background: none;
   color: var(--pm-dark);
   font-size: 0.875rem;

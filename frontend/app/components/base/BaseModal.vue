@@ -46,14 +46,14 @@ function trapFocus(event: KeyboardEvent) {
     <Transition name="base-modal">
       <div
         v-if="open"
-        class="base-modal"
+        class="base-modal position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
         @click.self="emit('close')"
         @keydown.esc="emit('close')"
         @keydown.tab="trapFocus"
       >
         <div
           ref="dialog"
-          class="base-modal__dialog"
+          class="base-modal__dialog position-relative bg-white"
           role="dialog"
           aria-modal="true"
           :aria-labelledby="labelledby"
@@ -67,22 +67,16 @@ function trapFocus(event: KeyboardEvent) {
 
 <style scoped lang="scss">
 .base-modal {
-  position: fixed;
-  inset: 0;
   z-index: 1050;
-  display: grid;
-  place-items: center;
   padding: 16px;
   background: rgba(33, 31, 43, 0.85);
   backdrop-filter: blur(4px);
 }
 
 .base-modal__dialog {
-  position: relative;
   width: min(582px, 100%);
   padding: 32px;
   border-radius: 4px;
-  background: #fff;
   box-shadow: var(--pm-shadow);
 }
 

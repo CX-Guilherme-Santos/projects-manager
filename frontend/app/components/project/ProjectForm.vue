@@ -52,7 +52,7 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
   <form
-    class="project-form"
+    class="project-form d-grid mx-auto"
     novalidate
     @submit="onSubmit"
   >
@@ -94,7 +94,7 @@ const onSubmit = handleSubmit(async (values) => {
       >
     </BaseFormField>
 
-    <div class="project-form__dates">
+    <div class="project-form__dates d-grid">
       <BaseFormField
         v-slot="field"
         label="Data de Início"
@@ -148,7 +148,7 @@ const onSubmit = handleSubmit(async (values) => {
 
     <p
       v-if="submitError"
-      class="project-form__error"
+      class="project-form__error m-0 text-center"
       role="alert"
     >
       {{ submitError }}
@@ -168,22 +168,17 @@ const onSubmit = handleSubmit(async (values) => {
 
 <style scoped lang="scss">
 .project-form {
-  display: grid;
   gap: 32px;
   width: min(704px, 100%);
-  margin: 0 auto;
 }
 
 .project-form__dates {
-  display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
 }
 
 .project-form__error {
-  margin: 0;
   color: var(--pm-danger);
-  text-align: center;
 }
 
 @media (max-width: 575.98px) {

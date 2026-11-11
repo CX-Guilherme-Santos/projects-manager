@@ -53,8 +53,8 @@ const isFirstLoad = computed(() => status.value === 'loading' && projects.value.
     </ProjectEmptyState>
 
     <template v-else>
-      <div class="list-header">
-        <h1 class="list-header__title">
+      <div class="list-header d-flex flex-wrap align-items-center justify-content-between">
+        <h1 class="list-header__title d-flex align-items-baseline gap-2 m-0">
           Projetos
           <span
             v-if="isFirstLoad"
@@ -63,10 +63,10 @@ const isFirstLoad = computed(() => status.value === 'loading' && projects.value.
           />
           <span
             v-else
-            class="list-header__count"
+            class="list-header__count fw-normal"
           >({{ total }})</span>
         </h1>
-        <div class="list-header__controls">
+        <div class="list-header__controls d-flex flex-wrap align-items-center">
           <BaseSwitch
             v-model="favoritesOnly"
             label="Apenas Favoritos"
@@ -106,26 +106,17 @@ const isFirstLoad = computed(() => status.value === 'loading' && projects.value.
 
 <style scoped lang="scss">
 .list-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
   gap: 16px 32px;
   margin-bottom: 22px;
 }
 
 .list-header__title {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin: 0;
   font-size: 1.5rem;
 }
 
 .list-header__count {
   color: var(--pm-primary);
   font-size: 1.125rem;
-  font-weight: 400;
 }
 
 .list-header__count-placeholder {
@@ -134,9 +125,6 @@ const isFirstLoad = computed(() => status.value === 'loading' && projects.value.
 }
 
 .list-header__controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   gap: 16px 32px;
 }
 

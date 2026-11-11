@@ -12,7 +12,7 @@ const segments = computed(() => splitHighlight(text, term))
   >
     <mark
       v-if="segment.match"
-      class="highlight"
+      class="highlight p-0 text-white"
     >{{ segment.text }}</mark>
     <template v-else>
       {{ segment.text }}
@@ -22,8 +22,6 @@ const segments = computed(() => splitHighlight(text, term))
 
 <style scoped lang="scss">
 .highlight {
-  padding: 0;
   background: var(--pm-accent);
-  color: #fff;
 }
 </style>

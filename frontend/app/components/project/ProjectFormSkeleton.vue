@@ -1,28 +1,28 @@
 <template>
   <div
-    class="form-skeleton"
+    class="form-skeleton d-grid mx-auto"
     role="status"
     aria-label="Carregando projeto"
   >
     <div
       v-for="field in ['name', 'client']"
       :key="field"
-      class="form-skeleton__field"
+      class="d-grid gap-2"
     >
       <span class="skeleton form-skeleton__label" />
       <span class="skeleton form-skeleton__input" />
     </div>
-    <div class="form-skeleton__dates">
+    <div class="form-skeleton__dates d-grid">
       <div
         v-for="field in ['start', 'end']"
         :key="field"
-        class="form-skeleton__field"
+        class="d-grid gap-2"
       >
         <span class="skeleton form-skeleton__label" />
         <span class="skeleton form-skeleton__input" />
       </div>
     </div>
-    <div class="form-skeleton__field">
+    <div class="d-grid gap-2">
       <span class="skeleton form-skeleton__label" />
       <span class="skeleton form-skeleton__cover" />
     </div>
@@ -32,19 +32,11 @@
 <style scoped lang="scss">
 // Same grid as ProjectForm, so nothing jumps when the project arrives
 .form-skeleton {
-  display: grid;
   gap: 32px;
   width: min(704px, 100%);
-  margin: 0 auto;
-}
-
-.form-skeleton__field {
-  display: grid;
-  gap: 8px;
 }
 
 .form-skeleton__dates {
-  display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
 }

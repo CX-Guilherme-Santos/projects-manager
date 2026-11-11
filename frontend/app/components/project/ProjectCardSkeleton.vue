@@ -1,10 +1,10 @@
 <template>
   <div
-    class="card-skeleton"
+    class="card-skeleton bg-white overflow-hidden"
     aria-hidden="true"
   >
     <div class="card-skeleton__cover skeleton" />
-    <div class="card-skeleton__body">
+    <div class="card-skeleton__body d-grid p-4">
       <span class="skeleton card-skeleton__line card-skeleton__line--title" />
       <span class="skeleton card-skeleton__line card-skeleton__line--short" />
       <hr>
@@ -19,8 +19,6 @@
   height: 430px;
   border: 1px solid var(--pm-border);
   border-radius: 16px;
-  background: #fff;
-  overflow: hidden;
 }
 
 .card-skeleton__cover {
@@ -29,9 +27,7 @@
 }
 
 .card-skeleton__body {
-  display: grid;
   gap: 12px;
-  padding: 24px;
 
   hr {
     margin: 4px 0;

@@ -12,18 +12,18 @@ watch(() => route.path, () => {
 </script>
 
 <template>
-  <header class="app-header">
+  <header class="app-header sticky-top">
     <SearchBar
       v-if="showSearchBar"
       @close="searchOpen = false"
     />
     <div
       v-else
-      class="app-header__bar"
+      class="app-header__bar position-relative h-100 d-flex align-items-center justify-content-center"
     >
       <NuxtLink
         to="/"
-        class="app-header__brand"
+        class="text-decoration-none"
         aria-label="Gerenciador de Projetos, página inicial"
       >
         <AppLogo />
@@ -31,7 +31,7 @@ watch(() => route.path, () => {
       <button
         v-if="canSearch"
         type="button"
-        class="app-header__search"
+        class="app-header__search position-absolute d-grid border-0 rounded-circle text-white"
         aria-label="Buscar projetos"
         @click="searchOpen = true"
       >
@@ -46,36 +46,19 @@ watch(() => route.path, () => {
 
 <style scoped lang="scss">
 .app-header {
-  position: sticky;
-  top: 0;
-  z-index: 1020;
   height: var(--pm-header-height);
 }
 
 .app-header__bar {
-  position: relative;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: var(--pm-dark);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
 }
 
-.app-header__brand {
-  text-decoration: none;
-}
-
 .app-header__search {
-  position: absolute;
   right: 60px;
-  display: grid;
   place-items: center;
   padding: 6px;
-  border: 0;
-  border-radius: 50%;
   background: none;
-  color: #fff;
 
   &:hover {
     background: rgba(255, 255, 255, 0.08);

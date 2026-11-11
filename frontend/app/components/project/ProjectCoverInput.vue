@@ -53,15 +53,16 @@ function clear() {
 
     <div
       v-if="preview"
-      class="cover-input__preview"
+      class="cover-input__preview position-relative overflow-hidden"
     >
       <img
         :src="preview"
         alt="Capa do projeto"
+        class="w-100 h-100"
       >
       <button
         type="button"
-        class="cover-input__remove"
+        class="cover-input__remove position-absolute d-grid p-0 border-0 rounded-circle bg-white"
         aria-label="Remover capa"
         @click="clear"
       >
@@ -74,7 +75,7 @@ function clear() {
 
     <div
       v-else
-      class="cover-input__dropzone"
+      class="cover-input__dropzone d-flex flex-column align-items-center gap-3 text-center"
       :class="{ 'cover-input__dropzone--active': dragging, 'cover-input__dropzone--invalid': invalid }"
       @dragover.prevent="dragging = true"
       @dragleave="dragging = false"
@@ -84,7 +85,9 @@ function clear() {
         name="ph:tray-arrow-up-light"
         size="28"
       />
-      <p>Escolha uma imagem .jpg ou .png no seu dispositivo</p>
+      <p class="m-0">
+        Escolha uma imagem .jpg ou .png no seu dispositivo
+      </p>
       <BaseButton
         variant="outline"
         @click="picker?.click()"
@@ -97,19 +100,10 @@ function clear() {
 
 <style scoped lang="scss">
 .cover-input__dropzone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
   padding: 20px 16px 24px;
   border: 1px dashed var(--pm-gray);
   border-radius: 4px;
   color: var(--pm-gray);
-  text-align: center;
-
-  p {
-    margin: 0;
-  }
 
   .btn {
     min-width: 144px;
@@ -126,30 +120,20 @@ function clear() {
 }
 
 .cover-input__preview {
-  position: relative;
   aspect-ratio: 702 / 395;
   border-radius: 4px;
-  overflow: hidden;
 
   img {
-    width: 100%;
-    height: 100%;
     object-fit: cover;
   }
 }
 
 .cover-input__remove {
-  position: absolute;
   top: 24px;
   right: 24px;
   width: 32px;
   height: 32px;
-  display: grid;
   place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: #fff;
   color: var(--pm-primary);
   box-shadow: var(--pm-shadow);
 }

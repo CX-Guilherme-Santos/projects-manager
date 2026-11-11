@@ -17,12 +17,12 @@ function remove() {
 <template>
   <div
     ref="root"
-    class="card-menu"
+    class="position-relative"
     @keydown.esc="open = false"
   >
     <button
       type="button"
-      class="card-menu__trigger"
+      class="card-menu__trigger d-grid p-0 border-0 rounded-circle bg-white"
       aria-label="Opções do projeto"
       aria-haspopup="menu"
       :aria-expanded="open"
@@ -37,12 +37,12 @@ function remove() {
     <div
       v-if="open"
       :id="menuId"
-      class="card-menu__list"
+      class="card-menu__list position-absolute end-0 bg-white"
       role="menu"
     >
       <NuxtLink
         :to="`/projects/${projectId}/edit`"
-        class="card-menu__item"
+        class="card-menu__item position-relative d-flex align-items-center w-100 text-decoration-none"
         role="menuitem"
       >
         <Icon
@@ -52,7 +52,7 @@ function remove() {
       </NuxtLink>
       <button
         type="button"
-        class="card-menu__item"
+        class="card-menu__item position-relative d-flex align-items-center w-100 text-start"
         role="menuitem"
         @click="remove"
       >
@@ -66,31 +66,19 @@ function remove() {
 </template>
 
 <style scoped lang="scss">
-.card-menu {
-  position: relative;
-}
-
 .card-menu__trigger {
   width: 32px;
   height: 32px;
-  display: grid;
   place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: #fff;
   color: var(--pm-primary);
   box-shadow: var(--pm-shadow);
 }
 
 .card-menu__list {
-  position: absolute;
   top: calc(100% + 8px);
-  right: 0;
   z-index: 20;
   width: 240px;
   border-radius: 4px;
-  background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 
   // arrow pointing at the "..." button
@@ -108,18 +96,12 @@ function remove() {
 }
 
 .card-menu__item {
-  position: relative;
-  width: 100%;
-  display: flex;
-  align-items: center;
   gap: 12px;
   padding: 14px 20px;
   border: 0;
   background: none;
   color: var(--pm-primary);
   font-size: 1rem;
-  text-align: left;
-  text-decoration: none;
 
   & + & {
     border-top: 1px solid var(--pm-divider);

@@ -59,12 +59,12 @@ function onKeydown(event: KeyboardEvent) {
 <template>
   <div
     ref="root"
-    class="base-select"
+    class="base-select position-relative"
     :class="{ 'base-select--open': open }"
   >
     <button
       type="button"
-      class="base-select__trigger"
+      class="base-select__trigger bg-white d-flex align-items-center justify-content-between w-100 text-start"
       role="combobox"
       :aria-label="label"
       :aria-expanded="open"
@@ -82,7 +82,7 @@ function onKeydown(event: KeyboardEvent) {
     <ul
       v-show="open"
       :id="listId"
-      class="base-select__options"
+      class="base-select__options position-absolute top-100 start-0 end-0 list-unstyled m-0 p-0 bg-white overflow-hidden"
       role="listbox"
       :aria-label="label"
     >
@@ -105,22 +105,15 @@ function onKeydown(event: KeyboardEvent) {
 
 <style scoped lang="scss">
 .base-select {
-  position: relative;
   width: 296px;
 }
 
 .base-select__trigger {
-  width: 100%;
   height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 0 16px;
   border: 1px solid var(--pm-gray);
   border-radius: 4px;
-  background: #fff;
   color: var(--pm-dark);
-  text-align: left;
 
   &:focus-visible {
     outline: 2px solid var(--pm-primary);
@@ -135,18 +128,9 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 .base-select__options {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
   z-index: 10;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  background: #fff;
   border-radius: 0 0 8px 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
-  overflow: hidden;
 }
 
 .base-select__option {

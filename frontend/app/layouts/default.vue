@@ -1,23 +1,14 @@
 <template>
-  <div class="app">
+  <div class="d-flex flex-column min-vh-100">
     <AppHeader />
-    <main class="app__main">
+    <main class="app__main flex-grow-1 d-flex flex-column">
       <slot />
     </main>
   </div>
 </template>
 
 <style scoped lang="scss">
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
 .app__main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   padding: 60px var(--pm-page-padding-x) 48px;
 }
 

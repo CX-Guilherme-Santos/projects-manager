@@ -16,7 +16,7 @@ const errorId = `${id}-error`
   >
     <label
       :for="id"
-      class="form-field__label"
+      class="form-field__label d-flex align-items-baseline mb-1"
     >
       {{ label }}
       <small v-if="required">(Obrigatório)</small>
@@ -29,7 +29,7 @@ const errorId = `${id}-error`
     <p
       v-if="error"
       :id="errorId"
-      class="form-field__error"
+      class="form-field__error mt-1 mb-0"
     >
       {{ error }}
     </p>
@@ -38,10 +38,7 @@ const errorId = `${id}-error`
 
 <style scoped lang="scss">
 .form-field__label {
-  display: flex;
-  align-items: baseline;
   gap: 10px;
-  margin-bottom: 4px;
   color: var(--pm-primary);
   font-size: 1.125rem;
 
@@ -57,7 +54,6 @@ const errorId = `${id}-error`
 }
 
 .form-field__error {
-  margin: 4px 0 0;
   color: var(--pm-danger);
   font-size: 0.875rem;
 }

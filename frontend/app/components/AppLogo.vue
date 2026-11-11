@@ -1,5 +1,5 @@
 <template>
-  <span class="app-logo">
+  <span class="app-logo d-inline-flex align-items-center text-white">
     <img
       src="/logo.svg"
       alt=""
@@ -13,10 +13,7 @@
 
 <style scoped lang="scss">
 .app-logo {
-  display: inline-flex;
-  align-items: center;
   gap: 12px;
-  color: #fff;
 }
 
 .app-logo__mark {

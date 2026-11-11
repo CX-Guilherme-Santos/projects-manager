@@ -17,9 +17,9 @@ const titleId = useId()
     :labelledby="titleId"
     @close="loading || emit('cancel')"
   >
-    <div class="delete-modal">
+    <div class="text-center">
       <span
-        class="delete-modal__icon"
+        class="delete-modal__icon position-absolute d-grid rounded-circle text-white"
         aria-hidden="true"
       >
         <Icon
@@ -46,7 +46,7 @@ const titleId = useId()
       >
         {{ error }}
       </p>
-      <div class="delete-modal__actions">
+      <div class="delete-modal__actions d-grid">
         <BaseButton
           variant="outline"
           size="lg"
@@ -68,21 +68,13 @@ const titleId = useId()
 </template>
 
 <style scoped lang="scss">
-.delete-modal {
-  text-align: center;
-}
-
 .delete-modal__icon {
-  position: absolute;
   top: -32px;
   left: 50%;
   width: 64px;
   height: 64px;
-  display: grid;
   place-items: center;
-  border-radius: 50%;
   background: var(--pm-primary);
-  color: #fff;
   box-shadow: var(--pm-shadow);
   transform: translateX(-50%);
 }
@@ -111,7 +103,6 @@ const titleId = useId()
 }
 
 .delete-modal__actions {
-  display: grid;
   grid-template-columns: 226fr 260fr;
   gap: 32px;
 }
