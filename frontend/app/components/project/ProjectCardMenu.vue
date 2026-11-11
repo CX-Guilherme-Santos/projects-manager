@@ -125,6 +125,16 @@ function remove() {
     border-top: 1px solid var(--pm-divider);
   }
 
+  // the list can't clip with overflow: hidden (it would cut the arrow),
+  // so the hover background follows the corners here
+  &:first-child {
+    border-radius: 4px 4px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 4px 4px;
+  }
+
   &:hover,
   &:focus-visible {
     background: var(--pm-bg);
