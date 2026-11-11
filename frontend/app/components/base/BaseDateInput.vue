@@ -19,6 +19,8 @@ const notifyBlur = () => (attrs.onBlur as ((event?: Event) => void) | undefined)
 const text = ref(value.value ? formatBrDate(value.value) : '')
 watch(value, (iso) => {
   if (iso && parseBrDate(text.value) !== iso) text.value = formatBrDate(iso)
+  // a date typed with the calendar open moves the calendar to its month
+  if (iso && open.value) showMonthOf(iso)
 })
 
 function onInput(event: Event) {
@@ -64,9 +66,29 @@ async function focusDay(iso: string) {
   grid.value?.querySelector<HTMLElement>(`[data-iso="${iso}"]`)?.focus()
 }
 
-function openCalendar() {
+// Keyboard: ArrowDown in the field opens the calendar (the icon is mouse-only, so
+// Tab goes straight to the next field and closes it).
+// From the icon (or ArrowDown) the focus moves into the calendar; from a click on the
+// field it stays in the field, so the date can still be typed
+function openCalendar({ focusGrid = true } = {}) {
   open.value = true
-  focusDay(value.value || today)
+  if (focusGrid) return focusDay(value.value || today)
+  showMonthOf(value.value || today)
+  focusedDay.value = ''
+}
+
+function onInputKeydown(event: KeyboardEvent) {
+  // Tab goes on to the next field, not into the calendar opened by a click
+  if (event.key === 'Tab' && open.value) return close()
+  if (event.key !== 'ArrowDown') return
+  event.preventDefault()
+  openCalendar()
+}
+
+// Tab (or anything else) taking the focus out of the field and the calendar closes it
+function onFocusout(event: FocusEvent) {
+  const next = event.relatedTarget as Node | null
+  if (open.value && next && !root.value?.contains(next)) close()
 }
 
 function close({ returnFocus = false } = {}) {
@@ -104,6 +126,7 @@ onClickOutside(root, () => open.value && close())
     class="date-input position-relative"
     :class="{ 'date-input--invalid': invalid, 'date-input--open': open }"
     @keydown.esc="open && close({ returnFocus: true })"
+    @focusout="onFocusout"
   >
     <input
       ref="input"
@@ -115,15 +138,18 @@ onClickOutside(root, () => open.value && close())
       maxlength="10"
       class="form-control"
       :class="{ 'is-invalid': invalid }"
+      aria-haspopup="dialog"
+      :aria-expanded="open"
+      :aria-controls="calendarId"
       @input="onInput"
+      @click="open || openCalendar({ focusGrid: false })"
+      @keydown="onInputKeydown"
     >
     <button
       type="button"
       class="date-input__toggle position-absolute d-grid p-0 border-0 bg-transparent"
+      tabindex="-1"
       aria-label="Abrir calendário"
-      aria-haspopup="dialog"
-      :aria-expanded="open"
-      :aria-controls="calendarId"
       @click="open ? close() : openCalendar()"
     >
       <Icon

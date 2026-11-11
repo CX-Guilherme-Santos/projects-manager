@@ -3,7 +3,10 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import BaseDateInput from '~/components/base/BaseDateInput.vue'
 
 const mount = (modelValue: string) =>
-  mountSuspended(BaseDateInput, { props: { modelValue, icon: 'ph:calendar-dot-light' } })
+  mountSuspended(BaseDateInput, {
+    props: { modelValue, icon: 'ph:calendar-dot-light' },
+    attachTo: document.body,
+  })
 
 describe('BaseDateInput', () => {
   it('shows the date as dd/mm/aaaa whatever the browser language', async () => {
@@ -31,5 +34,48 @@ describe('BaseDateInput', () => {
 
     expect(field.emitted('update:modelValue')!.at(-1)).toEqual(['2026-09-15'])
     expect(field.find('[role="dialog"]').exists()).toBe(false)
+  })
+
+  it('opens the calendar when the field is clicked, keeping the focus to type', async () => {
+    const field = await mount('2026-09-01')
+    const input = field.get('input')
+    input.element.focus()
+
+    await input.trigger('click')
+
+    expect(field.find('[role="dialog"]').exists()).toBe(true)
+    expect(document.activeElement).toBe(input.element)
+    field.unmount()
+  })
+
+  it('follows a typed date with the calendar open', async () => {
+    const field = await mount('2026-09-01')
+    await field.get('input').trigger('click')
+
+    await field.get('input').setValue('10122026')
+    await field.setProps({ modelValue: '2026-12-10' })
+
+    expect(field.text()).toContain('dezembro de 2026')
+    field.unmount()
+  })
+
+  it('closes on Tab from the field, instead of tabbing into the calendar', async () => {
+    const field = await mount('2026-09-01')
+    await field.get('input').trigger('click')
+
+    await field.get('input').trigger('keydown', { key: 'Tab' })
+
+    expect(field.find('[role="dialog"]').exists()).toBe(false)
+    field.unmount()
+  })
+
+  it('closes when the focus leaves the field', async () => {
+    const field = await mount('2026-09-01')
+    await field.get('input').trigger('click')
+
+    await field.get('.date-input').trigger('focusout', { relatedTarget: document.body })
+
+    expect(field.find('[role="dialog"]').exists()).toBe(false)
+    field.unmount()
   })
 })
