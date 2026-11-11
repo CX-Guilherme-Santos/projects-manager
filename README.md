@@ -23,6 +23,7 @@ cd backend
 cp .env.example .env   # preencha com as credenciais do seu PostgreSQL
 bundle install
 bin/rails db:prepare
+bin/rails db:seed      # opcional: 12 projetos de exemplo (só em development)
 
 # frontend
 cd ../frontend

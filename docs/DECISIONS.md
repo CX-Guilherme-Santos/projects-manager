@@ -22,6 +22,14 @@ Registro das principais escolhas do projeto: o contexto, o que foi decidido, o q
 16. [Sem autenticação nem limite de requisições](#16-sem-autenticação-nem-limite-de-requisições)
 17. [Possíveis evoluções](#17-possíveis-evoluções)
 18. [GitFlow e Conventional Commits](#18-gitflow-e-conventional-commits)
+19. [Frontend em camadas: plugin, service, composable, componente](#19-frontend-em-camadas-plugin-service-composable-componente)
+20. [Filtros e ordenação na URL](#20-filtros-e-ordenação-na-url)
+21. [Scroll infinito sobre paginação por offset](#21-scroll-infinito-sobre-paginação-por-offset)
+22. [Favorito otimista, remoção confirmada](#22-favorito-otimista-remoção-confirmada)
+23. [Busca: rota própria, histórico local e destaque sem `v-html`](#23-busca-rota-própria-histórico-local-e-destaque-sem-v-html)
+24. [Estados de carregamento](#24-estados-de-carregamento)
+25. [Fidelidade ao Figma sem o Dev Mode](#25-fidelidade-ao-figma-sem-o-dev-mode)
+26. [Testes do frontend com TDD](#26-testes-do-frontend-com-tdd)
 
 ---
 
@@ -47,7 +55,7 @@ Registro das principais escolhas do projeto: o contexto, o que foi decidido, o q
 
 **Por quê:** o design tem identidade própria. Com uma biblioteca de componentes (Vuetify, PrimeVue), boa parte do trabalho seria sobrescrever estilos. O Bootstrap entra para o que é genérico: layout responsivo, espaçamentos e estados de formulário (`.is-invalid`).
 
-**Descartado:** `bootstrap-vue-next` e o JS do Bootstrap. O único componente interativo que o design pede, o modal de remoção, é mais simples como componente Vue (`<Teleport>` + `v-if`).
+**Descartado:** `bootstrap-vue-next` e o JS do Bootstrap. Os componentes interativos do design (modal de remoção, menu do card e o select de ordenação) são componentes Vue próprios, com teclado e ARIA. O select é um listbox próprio porque o design estiliza as opções abertas, o que um `<select>` nativo não permite.
 
 ## 4. Validação de formulários com VeeValidate + Zod 3
 
@@ -308,7 +316,6 @@ Nada desta seção foi implementado. São melhorias possíveis, deixadas de fora
 - **Monitoramento de erros** (Sentry ou Honeybadger) na API e no frontend.
 - **Backups agendados do Postgres** (`heroku pg:backups:schedule`), com um teste de restauração de vez em quando.
 - **Ambiente de staging**, com review apps do Heroku por PR (o Pages já gera um preview por PR).
-- **Seeds com projetos de exemplo** para o ambiente de demonstração.
 
 **Produto**
 - **Autenticação e projetos por usuário** (seção 16).
@@ -319,7 +326,7 @@ Nada desta seção foi implementado. São melhorias possíveis, deixadas de fora
 - **Outros idiomas** (seção 15).
 
 **Frontend**
-- **Favoritar sem esperar a API:** a estrela muda na hora e volta atrás se a requisição falhar.
+- **Testes de regressão visual** (screenshots do Playwright comparados entre versões).
 - **Auditoria de acessibilidade automatizada** (axe nos testes do Playwright).
 - **Cabeçalhos de segurança no Pages**, como Content Security Policy.
 
@@ -337,3 +344,104 @@ Nada desta seção foi implementado. São melhorias possíveis, deixadas de fora
 
 **Por que commit de merge e não squash:** com squash, cada feature viraria um commit só no `develop`, e os commits menores (com as mensagens explicando cada passo) sumiriam do histórico. Com o merge, o histórico do `develop` mostra a feature entrando e preserva os commits dela.
 
+## 19. Frontend em camadas: plugin, service, composable, componente
+
+**Decisão:** cada camada tem uma responsabilidade só.
+
+| Camada | Arquivo | Responsabilidade |
+|---|---|---|
+| Plugin | `plugins/api.ts` | Cria o único cliente HTTP (`$fetch.create` com a `baseURL` do `runtimeConfig`) |
+| Service | `services/projects.ts` | Chamadas a `/api/v1/projects`, sem estado. Converte os headers de paginação (`total-count`, `link`) em `{ projects, total, hasNext }` |
+| Composable | `composables/useProjectList.ts`, `useSearchHistory.ts` | Estado e regras da tela: páginas carregadas, favoritar, remover, histórico |
+| Schema e utils | `schemas/project.ts`, `utils/*` | Funções puras: regras do formulário, datas por extenso, destaque da busca, `FormData` |
+| Componentes | `components/base/*`, `components/project/*`, `components/search/*` | Apresentação. `base/` não conhece o domínio (botão, select, modal, campo de formulário) |
+| Páginas | `pages/*` | Compõem as camadas e ligam a URL ao estado |
+
+**Por quê:** só o service conhece URLs e headers da API, então uma mudança no contrato fica em um arquivo. Os composables são testados com um backend falso na fronteira HTTP, sem montar telas (seção 26). Os componentes recebem dados prontos e emitem eventos.
+
+**Sem Pinia:** não há estado compartilhado entre telas. A lista vive na página e o histórico vive no `localStorage`. Uma store global só acrescentaria uma camada.
+
+**VueUse (`@vueuse/nuxt`):** usado para `onClickOutside`, `useDebounceFn`, `useLocalStorage`, `useElementVisibility` e `useScrollLock`. São utilitários pequenos e testados, que eu reescreveria de forma pior.
+
+## 20. Filtros e ordenação na URL
+
+**Decisão:** "Apenas favoritos" e a ordenação ficam na query string (`/?favorite=true&sort=nearest_end`), e a busca tem a própria rota (`/search?q=termo`).
+
+**Por quê:** o botão voltar, o recarregar da página e um link compartilhado mantêm o que o usuário escolheu. Ao voltar da edição de um projeto, a lista reaparece com os mesmos filtros. A página só lê e escreve a URL (`router.replace`, que não empilha histórico a cada clique), e o composable recarrega quando ela muda.
+
+## 21. Scroll infinito sobre paginação por offset
+
+**Decisão:** a lista carrega 10 projetos por vez. A página seguinte vem sozinha quando um elemento sentinela, no fim da grid, chega a 400 px da tela.
+
+**Por quê:** o design não mostra paginação nem um botão "carregar mais", e o scroll infinito não acrescenta nenhum elemento visual.
+
+**Três cuidados, todos cobertos por testes do `useProjectList`:**
+- **Sentinela reativo, não um callback único:** `useElementVisibility` + `watchEffect` carregam enquanto o sentinela estiver visível e a lista estiver ociosa. Um `IntersectionObserver` simples só avisa quando a visibilidade *muda*. Se o sentinela já estava visível quando a primeira página chegou, a segunda nunca carregava (o bug apareceu na validação no navegador).
+- **Remoções sem pular projetos:** na paginação por offset, remover um item desloca todos os seguintes. Sem cuidado, o próximo `loadMore` pularia um projeto. Depois de remover (ou de desfavoritar com o filtro ligado), o composable busca de novo as páginas já carregadas.
+- **Respostas fora de ordem:** cada carga recebe um número, e uma resposta atrasada de um filtro anterior é descartada. Isso vale também para a página seguinte que chega depois de trocar o filtro.
+
+**Alternativa considerada:** paginação por cursor (keyset) na API, que elimina o problema do deslocamento (seção 9). Para dezenas de projetos, recarregar as páginas já vistas custa pouco.
+
+## 22. Favorito otimista, remoção confirmada
+
+**Favoritar:** a estrela muda na hora e o `PATCH` vai em seguida. Se a API falhar, a estrela volta ao estado anterior. É uma ação leve, fácil de desfazer, e esperar a rede a cada clique deixaria a tela lenta. Com o filtro "Apenas favoritos" ligado, desfavoritar tira o card da lista e diminui a contagem.
+
+**Remover:** não é otimista. O modal fica aberto com o botão em carregamento até a API confirmar, e mostra uma mensagem se der erro. Uma remoção que "volta" depois de sumir seria mais confusa do que esperar meio segundo.
+
+## 23. Busca: rota própria, histórico local e destaque sem `v-html`
+
+**Fluxo:** a lupa do header vira a barra de busca. Com 3 ou mais caracteres, e 300 ms depois da última tecla (debounce), o app abre `/search?q=termo`. Enquanto o usuário digita, a URL é substituída (`replace`) e não empilhada, para o voltar não passar por cada letra.
+
+**Histórico (últimas 5 buscas):**
+- **Onde:** `localStorage`, por navegador. Não justifica uma tabela na API sem usuários (seção 16).
+- **Quando entra:** a cada busca executada. Como a busca roda enquanto se digita, "Pro" → "Proj" → "Projet" encheria o histórico de fragmentos. Por isso, um termo que estende (ou encurta) o último **substitui** o último, e só "Projet" fica.
+- Termos repetidos sobem para o topo, sem diferenciar maiúsculas de minúsculas.
+
+**Destaque:** `splitHighlight` divide o texto em trechos com e sem correspondência, e o template renderiza os trechos com `<mark>`. Não há `v-html`, então um projeto chamado `<script>…` aparece como texto. O destaque vale para o nome e para o cliente, porque a API busca nos dois.
+
+**Limite conhecido:** a busca não ignora acentos ("projeto" não encontra "projéto"), nem na API (`ILIKE`) nem no destaque. Uma busca de texto completo resolveria (seção 17).
+
+## 24. Estados de carregamento
+
+| Situação | O que aparece |
+|---|---|
+| Primeira carga da lista | 5 cards skeleton e um marcador no lugar do "(N)". O empty state nunca pisca antes de os dados chegarem |
+| Troca de filtro ou ordenação | Os cards atuais ficam esmaecidos até a resposta chegar (sem voltar ao skeleton, que faria a página pular) |
+| Próxima página | Um spinner no fim da grid |
+| Edição | Skeleton do formulário enquanto o projeto carrega |
+| Envio de formulário e remoção | Botão em carregamento e desabilitado |
+| Erro ao carregar | Mensagem e botão "Tentar novamente" |
+
+**Empty states:** o do design ("Nenhum projeto") só aparece quando não existe nenhum projeto. Com o filtro de favoritos sem resultados, a tela mantém os controles e mostra "Nenhum projeto favorito", com um botão para ver todos. A busca sem resultados mostra "Nenhum projeto encontrado".
+
+## 25. Fidelidade ao Figma sem o Dev Mode
+
+O arquivo do Figma estava disponível só para visualização, sem o Dev Mode (que mostra medidas, cores e fontes).
+
+**Como as medidas foram tiradas:**
+- **Cores:** amostradas por script direto dos pixels das telas exportadas e guardadas como tokens em `assets/scss/_tokens.scss`. Elas alimentam as variáveis do Bootstrap e viram CSS variables (`--pm-*`) para os componentes.
+- **Tamanhos de fonte:** a largura de cada texto nas imagens foi comparada com a largura calculada pelo navegador para a mesma fonte, em vários tamanhos e pesos.
+- **Espaçamentos:** navbar de 80 px, cards de 346 × 430 com capa de 232, 32 px entre os cards e 5 colunas em 1920 px. Tudo conferido no Chrome, lado a lado com as telas.
+- **Fonte:** Encode Sans Semi Expanded (confirmada no Figma), pelo Google Fonts.
+
+**Elementos refeitos:**
+- **A ilustração do card sem capa** foi redesenhada em SVG a partir da imagem, porque não havia o arquivo original.
+- **Os campos de data** usam o `<input type="date">` nativo (dd/mm/aaaa nos navegadores em português, seletor nativo no celular). O ícone do navegador dá lugar ao ícone do design, e o campo vazio esconde a máscara de formato, como no Figma.
+
+**Diferença intencional:** no Figma, a tela com "Apenas favoritos" ligado mostra "(9)" com 2 cards. Aqui o número acompanha o filtro (seção 12).
+
+## 26. Testes do frontend com TDD
+
+**Como foi feito:** red → green em fatias verticais (um teste falhando, o código mínimo para passar, o próximo teste), só nas interfaces públicas combinadas antes:
+
+| Seam | Testes | O que pega |
+|---|---|---|
+| Regras puras (`test/unit`) | Schema Zod (as mesmas mensagens do Rails), datas por extenso em qualquer fuso, destaque, `FormData` | Regras de negócio e formatação |
+| Composables (`test/nuxt`) | `useProjectList` contra um backend falso que imita a API (headers de paginação, filtro, `PATCH`, `DELETE`, latência e falhas); `useSearchHistory` | Paginação, remoção sem pular itens, rollback do favorito, respostas fora de ordem, regras do histórico |
+| Componentes (`test/nuxt`) | `ProjectCard`, `ProjectForm`, `ProjectDeleteModal` montados com `mountSuspended` | O que o usuário vê e os eventos emitidos: botão Salvar desabilitado, erros do 422 nos campos, menu do card |
+
+**Mock só na fronteira:** o backend falso fica no nível do HTTP (`registerEndpoint` do `@nuxt/test-utils`). O service e o composable rodam de verdade, e os testes não quebram se a implementação mudar.
+
+**Fidelidade visual:** não é coberta por testes automatizados. Foi verificada no Chrome, estado por estado (lista, select aberto, menu, modal, favoritos, skeleton, empty state, formulários com erro, edição com capa, busca e histórico), em 1920 px e no celular.
+
+**Ponto de atenção do Vitest 5:** o cache persistente de módulos (`fsModuleCache`) não percebe composables novos, que ficam "not defined" nos testes até o cache ser limpo. Ele está desligado no projeto `nuxt` do `vitest.config.ts`.
