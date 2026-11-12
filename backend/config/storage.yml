@@ -34,3 +34,8 @@ r2:
   endpoint: <%= ENV["R2_ENDPOINT"] %>
   bucket: <%= ENV["R2_BUCKET"] %>
   region: auto
+  # aws-sdk-s3 sends a CRC32 checksum on every upload by default, besides the
+  # Content-MD5 Active Storage already sends, and R2 rejects the pair
+  # ("You can only specify one non-default checksum at a time")
+  request_checksum_calculation: when_required
+  response_checksum_validation: when_required
