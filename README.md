@@ -7,7 +7,6 @@ Aplicação para cadastrar e acompanhar projetos: lista com favoritos, ordenaç�
 | **Aplicação em produção** | https://projects-manager.pages.dev |
 | **API em produção** | https://projects-manager-api-499ef87f8334.herokuapp.com/api/v1/projects |
 | **Decisões técnicas** | [`docs/DECISIONS.md`](docs/DECISIONS.md): o que foi escolhido, o que foi descartado e por quê |
-| **Versões** | [`v1.0.0`](https://github.com/CX-Guilherme-Santos/projects-manager/tree/v1.0.0) e [`v1.0.1`](https://github.com/CX-Guilherme-Santos/projects-manager/tree/v1.0.1) (correção do upload de capas no R2) |
 
 | Pasta | Stack | Porta |
 |---|---|---|
