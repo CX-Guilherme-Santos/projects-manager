@@ -89,6 +89,13 @@ RSpec.describe Project do
         expect(project.errors[:cover]).to eq([ "Escolha uma imagem .jpg ou .png" ])
       end
 
+      it "rejects images in other formats, like GIF" do
+        project.cover.attach(io: file_fixture("cover.gif").open, filename: "cover.gif", content_type: "image/gif")
+
+        expect(project).not_to be_valid
+        expect(project.errors[:cover]).to eq([ "Escolha uma imagem .jpg ou .png" ])
+      end
+
       it "rejects files larger than the limit" do
         project.cover.attach(
           io: StringIO.new("x" * (described_class::COVER_MAX_SIZE + 1)),
@@ -159,6 +166,17 @@ RSpec.describe Project do
 
         expect(described_class.sorted_by("nearest_end").pluck(:name))
           .to eq([ "Projeto proximo", "Projeto distante", "Projeto encerrado" ])
+      end
+    end
+
+    it "keeps a project ending today among the running ones with nearest_end" do
+      travel_to Date.new(2026, 11, 10) do
+        create(:project, name: "Encerrado ontem", start_date: Date.new(2026, 1, 1), end_date: Date.new(2026, 11, 9))
+        create(:project, name: "Termina depois", start_date: Date.new(2026, 1, 1), end_date: Date.new(2026, 11, 20))
+        create(:project, name: "Termina hoje", start_date: Date.new(2026, 1, 1), end_date: Date.new(2026, 11, 10))
+
+        expect(described_class.sorted_by("nearest_end").pluck(:name))
+          .to eq([ "Termina hoje", "Termina depois", "Encerrado ontem" ])
       end
     end
 

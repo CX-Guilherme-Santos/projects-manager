@@ -170,6 +170,7 @@ RSpec.describe "Api::V1::Projects" do
       get api_v1_project_path(0)
 
       expect(response).to have_http_status(:not_found)
+      expect(json).to eq("error" => "Not found")
     end
   end
 
