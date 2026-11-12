@@ -38,6 +38,22 @@ RSpec.describe Project do
       end
     end
 
+    describe "length" do
+      it "accepts names and clients up to 100 characters" do
+        project.assign_attributes(name: "Projeto #{"a" * 92}", client: "c" * 100)
+
+        expect(project).to be_valid
+      end
+
+      it "rejects longer names and clients" do
+        project.assign_attributes(name: "Projeto #{"a" * 93}", client: "c" * 101)
+
+        expect(project).not_to be_valid
+        expect(project.errors[:name]).to eq([ "Use no máximo 100 caracteres" ])
+        expect(project.errors[:client]).to eq([ "Use no máximo 100 caracteres" ])
+      end
+    end
+
     describe "client" do
       it "requires at least one word" do
         project.client = "   "

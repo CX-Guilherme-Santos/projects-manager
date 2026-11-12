@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 
-  modules: ['@vee-validate/nuxt', '@nuxt/eslint', '@nuxt/icon'],
+  modules: ['@vee-validate/nuxt', '@nuxt/eslint', '@nuxt/icon', '@vueuse/nuxt'],
 
   // Used by `nuxt generate` (the Cloudflare build)
   $production: {
@@ -21,7 +21,16 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: 'pt-BR' },
       title: 'Gerenciador de Projetos',
-      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
+        // Font from the Figma design
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Encode+Sans+Semi+Expanded:wght@400;500;600;700&display=swap',
+        },
+      ],
     },
   },
 

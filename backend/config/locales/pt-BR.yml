@@ -15,8 +15,10 @@ pt-BR:
           attributes:
             name:
               too_few_words: Por favor, digite ao menos duas palavras
+              too_long: Use no máximo %{count} caracteres
             client:
               too_few_words: Por favor, digite ao menos uma palavra
+              too_long: Use no máximo %{count} caracteres
             start_date:
               blank: Selecione uma data válida
             end_date:

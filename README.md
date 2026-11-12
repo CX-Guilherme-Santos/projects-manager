@@ -23,6 +23,7 @@ cd backend
 cp .env.example .env   # preencha com as credenciais do seu PostgreSQL
 bundle install
 bin/rails db:prepare
+bin/rails db:seed      # opcional: 12 projetos de exemplo (só em development)
 
 # frontend
 cd ../frontend
@@ -45,6 +46,24 @@ bin/dev
 
 Sobe a API em http://localhost:3000 e o frontend em http://localhost:3001. `Ctrl+C` para os dois.
 
+## Rodando com Docker
+
+Sem instalar Ruby, Node nem PostgreSQL, só com o Docker:
+
+```bash
+docker compose up --build
+```
+
+| Serviço | Endereço | O que é |
+|---|---|---|
+| `web` | http://localhost:3001 | Frontend: o mesmo build estático do Cloudflare Pages, servido pelo nginx |
+| `api` | http://localhost:3000 | API Rails em `development` |
+| `db` | (só na rede interna) | PostgreSQL 17 |
+
+Na primeira subida, a API cria o banco e carrega os 12 projetos de exemplo dos seeds. Os dados e as capas enviadas ficam em volumes do Docker: `docker compose down` mantém tudo, e `docker compose down -v` apaga.
+
+O endereço da API é embutido no build do frontend. Por isso, depois de mudar o código ou a porta da API, rode de novo com `--build`. As portas 3000 e 3001 são as mesmas do `bin/dev`, então pare um antes de subir o outro.
+
 ## Fluxo de trabalho (GitFlow)
 
 | Branch | Para quê | Sai de | Volta para |
@@ -66,6 +85,7 @@ Base: `/api/v1`. Respostas em JSON, mensagens de erro em pt-BR.
 | Método | Rota | Descrição |
 |---|---|---|
 | `GET` | `/projects` | Lista paginada. Parâmetros: `favorite=true`, `q` (3+ caracteres, busca no nome e no cliente), `sort` (`name` (padrão), `recent_start` ou `nearest_end`), `page` e `limit` (padrão 10, máximo 50) |
+| `GET` | `/projects/count` | Total de projetos cadastrados, sem filtros: `{ "count": 12 }` |
 | `GET` | `/projects/:id` | Um projeto |
 | `POST` | `/projects` | Cria. Corpo `multipart/form-data` com `project[name]`, `project[client]`, `project[start_date]`, `project[end_date]` e `project[cover]` (opcional) |
 | `PATCH` | `/projects/:id` | Edita, favorita (`project[favorite]`) ou remove a capa (`project[remove_cover]=true`) |
@@ -96,7 +116,9 @@ No frontend, os testes ficam em duas pastas:
 - `test/unit/`: funções, schemas e utilitários, sem o Nuxt (rápido)
 - `test/nuxt/`: componentes e composables que precisam do Nuxt (auto-imports, `runtimeConfig`, rotas)
 
-O Playwright sobe o Rails (em `RAILS_ENV=test`) e o Nuxt sozinho. Se o `bin/dev` já estiver rodando, ele reaproveita os servidores.
+O Playwright sobe sozinho o Rails (em `RAILS_ENV=test`) e o build de produção do frontend (`nuxt generate` servido na porta 3001). Pare o `bin/dev` ou o `docker compose` antes, porque eles ocupam as mesmas portas com o banco de desenvolvimento.
 Antes da primeira vez, crie o banco de teste: `cd backend && RAILS_ENV=test bin/rails db:prepare`.
+
+Quando um teste falha, o trace e o screenshot ficam em `e2e/test-results/`. Para abrir o relatório, rode `cd e2e && npm run report`. Para abrir o trace de um teste só, rode `npx playwright show-trace test-results/<teste>/trace.zip`. No CI, o relatório vai como artefato `playwright-report` do job.
 
 O CI (GitHub Actions) tem três workflows: backend e frontend rodam só quando a sua pasta muda; o E2E roda em todo push e PR.

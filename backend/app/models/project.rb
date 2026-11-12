@@ -2,6 +2,7 @@ class Project < ApplicationRecord
   COVER_CONTENT_TYPES = %w[image/jpeg image/png].freeze
   COVER_MAX_SIZE = 5.megabytes
   MIN_SEARCH_LENGTH = 3
+  TEXT_MAX_LENGTH = 100
 
   # Whitelist of sort keys accepted by the API (`?sort=`). Unknown keys fall back to DEFAULT_SORT.
   SORTS = {
@@ -15,6 +16,7 @@ class Project < ApplicationRecord
 
   validate :name_has_at_least_two_words
   validate :client_has_at_least_one_word
+  validates :name, :client, length: { maximum: TEXT_MAX_LENGTH }
   validates :start_date, :end_date, presence: true
   validate :end_date_after_start_date
   validate :cover_is_a_valid_image

@@ -22,6 +22,14 @@ Registro das principais escolhas do projeto: o contexto, o que foi decidido, o q
 16. [Sem autenticação nem limite de requisições](#16-sem-autenticação-nem-limite-de-requisições)
 17. [Possíveis evoluções](#17-possíveis-evoluções)
 18. [GitFlow e Conventional Commits](#18-gitflow-e-conventional-commits)
+19. [Frontend em camadas: plugin, service, composable, componente](#19-frontend-em-camadas-plugin-service-composable-componente)
+20. [Filtros e ordenação na URL](#20-filtros-e-ordenação-na-url)
+21. [Scroll infinito sobre paginação por offset](#21-scroll-infinito-sobre-paginação-por-offset)
+22. [Favorito otimista, remoção confirmada](#22-favorito-otimista-remoção-confirmada)
+23. [Busca: rota própria, histórico local e destaque sem `v-html`](#23-busca-rota-própria-histórico-local-e-destaque-sem-v-html)
+24. [Estados de carregamento](#24-estados-de-carregamento)
+25. [Fidelidade ao Figma sem o Dev Mode](#25-fidelidade-ao-figma-sem-o-dev-mode)
+26. [Testes do frontend com TDD e E2E](#26-testes-do-frontend-com-tdd-e-e2e)
 
 ---
 
@@ -47,7 +55,9 @@ Registro das principais escolhas do projeto: o contexto, o que foi decidido, o q
 
 **Por quê:** o design tem identidade própria. Com uma biblioteca de componentes (Vuetify, PrimeVue), boa parte do trabalho seria sobrescrever estilos. O Bootstrap entra para o que é genérico: layout responsivo, espaçamentos e estados de formulário (`.is-invalid`).
 
-**Descartado:** `bootstrap-vue-next` e o JS do Bootstrap. O único componente interativo que o design pede, o modal de remoção, é mais simples como componente Vue (`<Teleport>` + `v-if`).
+**Utilitário ou CSS do componente:** o layout vai nas classes do Bootstrap no template (`d-flex`, `align-items-center`, `gap-3`, `position-absolute`, `sticky-top`, `p-0`, `fw-semibold`, `list-unstyled`). O `<style scoped>` fica só com o que é do design ou não tem classe: cores e tamanhos do Figma, bordas, sombras, valores fora da escala de espaçamento do Bootstrap (12, 32 e 40 px), `grid-template-columns`, regras responsivas, pseudo-elementos e tudo que muda com estado (`:hover`, selecionado). Esse último caso importa: os utilitários são `!important`, e um `bg-transparent` num item de menu anularia o fundo do hover.
+
+**Descartado:** `bootstrap-vue-next` e o JS do Bootstrap. Os componentes interativos do design (modal de remoção, menu do card e o select de ordenação) são componentes Vue próprios, com teclado e ARIA. O select é um listbox próprio porque o design estiliza as opções abertas, o que um `<select>` nativo não permite.
 
 ## 4. Validação de formulários com VeeValidate + Zod 3
 
@@ -204,9 +214,10 @@ total-pages: 2
 |---|---|
 | "Próximos à data de finalização" | Primeiro os projetos ainda em andamento, do fim mais próximo ao mais distante. Os já encerrados vão para o final. Mostrar primeiro um projeto que terminou há meses não ajudaria ninguém |
 | Data final igual à inicial | Inválida: a data final precisa ser **posterior** à de início. No design, as duas datas iguais (01/01/2000) aparecem com erro |
-| Número no título "Projetos (N)" | Acompanha os filtros: sem filtro, é o total de projetos cadastrados; com "Apenas favoritos" ou uma busca, é quantos projetos aparecem. Vem do header `total-count` |
+| Número no título "Projetos (N)" | É o total de projetos **cadastrados**, como pedem o enunciado e o Figma (que mostra "(9)" com o filtro de favoritos ligado e 2 cards). Vem de `GET /projects/count`, chamado uma vez ao abrir a página. Filtros e ordenação não mudam o número, e uma remoção o atualiza na própria tela. A primeira versão mostrava o `total-count` da listagem, que acompanha os filtros, e divergia do enunciado |
 | Busca | Procura no nome e no cliente, sem diferenciar maiúsculas de minúsculas, a partir de 3 caracteres (no frontend e na API) |
 | Capa | Opcional, só .jpg ou .png, até 5 MB |
+| Tamanho do nome e do cliente | O enunciado não define. Até 100 caracteres, validado na API e no formulário (com `maxlength` no campo). No card, o texto que não cabe em uma linha termina em reticências, e o texto completo aparece ao passar o mouse |
 | Fuso horário | `America/Sao_Paulo`, para "hoje" na ordenação ser o dia no Brasil, não em UTC |
 
 ## 13. Testes e CI
@@ -216,7 +227,7 @@ total-pages: 2
 | Model | RSpec + shoulda-matchers | Validações, escopos de busca, filtro e ordenação |
 | API | RSpec (request specs) | Formato das respostas, paginação, filtros combinados, upload e remoção da capa, erros 400, 404 e 422 |
 | Frontend | Vitest, separado em `unit` (sem Nuxt) e `nuxt` (com o runtime do Nuxt) | Schemas, utilitários e componentes |
-| Ponta a ponta | Playwright, subindo o Rails e o Nuxt | Fluxos completos pelo navegador |
+| Ponta a ponta | Playwright, subindo o Rails (`RAILS_ENV=test`) e o Nuxt | Os caminhos felizes de todos os requisitos pelo navegador, contra a API real (seção 26) |
 
 **RSpec em vez do Minitest padrão do Rails:** é o framework mais usado em times Rails, e a organização em `describe` (endpoint ou método) e `context` (cenário) deixa cada spec lendo como uma especificação. Os dados de teste vêm de uma factory (`FactoryBot`, com o Faker em pt-BR) com traits `:favorite` e `:with_cover`, em vez de fixtures. O `shoulda-matchers` cobre as validações simples, e as regras próprias (contagem de palavras, datas, capa) têm exemplos explícitos.
 
@@ -308,7 +319,6 @@ Nada desta seção foi implementado. São melhorias possíveis, deixadas de fora
 - **Monitoramento de erros** (Sentry ou Honeybadger) na API e no frontend.
 - **Backups agendados do Postgres** (`heroku pg:backups:schedule`), com um teste de restauração de vez em quando.
 - **Ambiente de staging**, com review apps do Heroku por PR (o Pages já gera um preview por PR).
-- **Seeds com projetos de exemplo** para o ambiente de demonstração.
 
 **Produto**
 - **Autenticação e projetos por usuário** (seção 16).
@@ -319,7 +329,7 @@ Nada desta seção foi implementado. São melhorias possíveis, deixadas de fora
 - **Outros idiomas** (seção 15).
 
 **Frontend**
-- **Favoritar sem esperar a API:** a estrela muda na hora e volta atrás se a requisição falhar.
+- **Testes de regressão visual** (screenshots do Playwright comparados entre versões).
 - **Auditoria de acessibilidade automatizada** (axe nos testes do Playwright).
 - **Cabeçalhos de segurança no Pages**, como Content Security Policy.
 
@@ -337,3 +347,112 @@ Nada desta seção foi implementado. São melhorias possíveis, deixadas de fora
 
 **Por que commit de merge e não squash:** com squash, cada feature viraria um commit só no `develop`, e os commits menores (com as mensagens explicando cada passo) sumiriam do histórico. Com o merge, o histórico do `develop` mostra a feature entrando e preserva os commits dela.
 
+## 19. Frontend em camadas: plugin, service, composable, componente
+
+**Decisão:** cada camada tem uma responsabilidade só.
+
+| Camada | Arquivo | Responsabilidade |
+|---|---|---|
+| Plugin | `plugins/api.ts` | Cria o único cliente HTTP (`$fetch.create` com a `baseURL` do `runtimeConfig`) |
+| Service | `services/projects.ts` | Chamadas a `/api/v1/projects`, sem estado. Converte os headers de paginação (`total-count`, `link`) em `{ projects, total, hasNext }` |
+| Composable | `composables/useProjectList.ts`, `useProjectCount.ts`, `useSearchHistory.ts` | Estado e regras da tela: páginas carregadas, favoritar, remover, total cadastrado, histórico |
+| Schema e utils | `schemas/project.ts`, `utils/*` | Funções puras: regras do formulário, datas por extenso, destaque da busca, `FormData` |
+| Componentes | `components/base/*`, `components/project/*`, `components/search/*` | Apresentação. `base/` não conhece o domínio (botão, select, modal, campo de formulário) |
+| Páginas | `pages/*` | Compõem as camadas e ligam a URL ao estado |
+
+**Por quê:** só o service conhece URLs e headers da API, então uma mudança no contrato fica em um arquivo. Os composables são testados com um backend falso na fronteira HTTP, sem montar telas (seção 26). Os componentes recebem dados prontos e emitem eventos.
+
+**Sem Pinia:** não há estado compartilhado entre telas. A lista vive na página e o histórico vive no `localStorage`. Uma store global só acrescentaria uma camada.
+
+**VueUse (`@vueuse/nuxt`):** usado para `onClickOutside`, `useDebounceFn`, `useLocalStorage`, `useElementVisibility` e `useScrollLock`. São utilitários pequenos e testados, que eu reescreveria de forma pior.
+
+## 20. Filtros e ordenação na URL
+
+**Decisão:** "Apenas favoritos" e a ordenação ficam na query string (`/?favorite=true&sort=nearest_end`), e a busca tem a própria rota (`/search?q=termo`).
+
+**Por quê:** o botão voltar, o recarregar da página e um link compartilhado mantêm o que o usuário escolheu. Ao voltar da edição de um projeto, a lista reaparece com os mesmos filtros. A página só lê e escreve a URL (`router.replace`, que não empilha histórico a cada clique), e o composable recarrega quando ela muda.
+
+## 21. Scroll infinito sobre paginação por offset
+
+**Decisão:** a lista carrega 10 projetos por vez. A página seguinte vem sozinha quando um elemento sentinela, no fim da grid, chega a 400 px da tela.
+
+**Por quê:** o design não mostra paginação nem um botão "carregar mais", e o scroll infinito não acrescenta nenhum elemento visual.
+
+**Três cuidados, todos cobertos por testes do `useProjectList`:**
+- **Sentinela reativo, não um callback único:** `useElementVisibility` + `watchEffect` carregam enquanto o sentinela estiver visível e a lista estiver ociosa. Um `IntersectionObserver` simples só avisa quando a visibilidade *muda*. Se o sentinela já estava visível quando a primeira página chegou, a segunda nunca carregava (o bug apareceu na validação no navegador).
+- **Remoções sem pular projetos:** na paginação por offset, remover um item desloca todos os seguintes. Sem cuidado, o próximo `loadMore` pularia um projeto. Depois de remover (ou de desfavoritar com o filtro ligado), o composable busca de novo as páginas já carregadas.
+- **Respostas fora de ordem:** cada carga recebe um número, e uma resposta atrasada de um filtro anterior é descartada. Isso vale também para a página seguinte que chega depois de trocar o filtro.
+
+**Alternativa considerada:** paginação por cursor (keyset) na API, que elimina o problema do deslocamento (seção 9). Para dezenas de projetos, recarregar as páginas já vistas custa pouco.
+
+## 22. Favorito otimista, remoção confirmada
+
+**Favoritar:** a estrela muda na hora e o `PATCH` vai em seguida. Se a API falhar, a estrela volta ao estado anterior. É uma ação leve, fácil de desfazer, e esperar a rede a cada clique deixaria a tela lenta. Com o filtro "Apenas favoritos" ligado, desfavoritar tira o card da lista (o número do título, que é o total cadastrado, não muda).
+
+**Remover:** não é otimista. O modal fica aberto com o botão em carregamento até a API confirmar, e mostra uma mensagem se der erro. Uma remoção que "volta" depois de sumir seria mais confusa do que esperar meio segundo.
+
+## 23. Busca: rota própria, histórico local e destaque sem `v-html`
+
+**Fluxo:** a lupa do header vira a barra de busca. Com 3 ou mais caracteres, e 300 ms depois da última tecla (debounce), o app abre `/search?q=termo`. Enquanto o usuário digita, a URL é substituída (`replace`) e não empilhada, para o voltar não passar por cada letra.
+
+**Histórico (últimas 5 buscas):**
+- **Onde:** `localStorage`, por navegador. Não justifica uma tabela na API sem usuários (seção 16).
+- **Quando entra:** a cada busca executada. Como a busca roda enquanto se digita, "Pro" → "Proj" → "Projet" encheria o histórico de fragmentos. Por isso, um termo que estende (ou encurta) o último **substitui** o último, e só "Projet" fica.
+- Termos repetidos sobem para o topo, sem diferenciar maiúsculas de minúsculas.
+
+**Destaque:** `splitHighlight` divide o texto em trechos com e sem correspondência, e o template renderiza os trechos com `<mark>`. Não há `v-html`, então um projeto chamado `<script>…` aparece como texto. O destaque vale para o nome e para o cliente, porque a API busca nos dois.
+
+**Limite conhecido:** a busca não ignora acentos ("projeto" não encontra "projéto"), nem na API (`ILIKE`) nem no destaque. Uma busca de texto completo resolveria (seção 17).
+
+## 24. Estados de carregamento
+
+| Situação | O que aparece |
+|---|---|
+| Primeira carga da lista | 5 cards skeleton e um marcador no lugar do "(N)". O empty state nunca pisca antes de os dados chegarem |
+| Troca de filtro ou ordenação | Os cards atuais ficam esmaecidos até a resposta chegar (sem voltar ao skeleton, que faria a página pular) |
+| Próxima página | Um spinner no fim da grid |
+| Edição | Skeleton do formulário enquanto o projeto carrega |
+| Envio de formulário e remoção | Botão em carregamento e desabilitado |
+| Erro ao carregar | Mensagem e botão "Tentar novamente" |
+
+**Empty states:** o do design ("Nenhum projeto") só aparece quando não existe nenhum projeto. Com o filtro de favoritos sem resultados, a tela mantém os controles e mostra "Nenhum projeto favorito", com um botão para ver todos. A busca sem resultados mostra "Nenhum projeto encontrado".
+
+## 25. Fidelidade ao Figma sem o Dev Mode
+
+O arquivo do Figma estava disponível só para visualização, sem o Dev Mode (que mostra medidas, cores e fontes).
+
+**Como as medidas foram tiradas:**
+- **Cores:** amostradas por script direto dos pixels das telas exportadas e guardadas como tokens em `assets/scss/_tokens.scss`. Elas alimentam as variáveis do Bootstrap e viram CSS variables (`--pm-*`) para os componentes.
+- **Tamanhos de fonte:** a largura de cada texto nas imagens foi comparada com a largura calculada pelo navegador para a mesma fonte, em vários tamanhos e pesos.
+- **Espaçamentos:** navbar de 80 px, cards de 346 × 430 com capa de 232, 32 px entre os cards e 5 colunas em 1920 px. Tudo conferido no Chrome, lado a lado com as telas.
+- **Fonte:** Encode Sans Semi Expanded (confirmada no Figma), pelo Google Fonts.
+
+**Elementos refeitos:**
+- **A ilustração do card sem capa** foi redesenhada em SVG a partir da imagem, porque não havia o arquivo original.
+- **Os campos de data** são um componente próprio (`BaseDateInput`): texto com máscara dd/mm/aaaa e um calendário em pt-BR com as cores do projeto. Clicar no campo abre o calendário sem tirar o foco dele, então dá para digitar ou escolher. Pelo teclado, a seta para baixo entra no calendário (setas, Enter, Esc), e o Tab segue para o próximo campo e fecha o calendário. A primeira versão usava o `<input type="date">` nativo, mas ele segue o idioma do navegador (mm/dd/yyyy num Chrome em inglês) e o calendário que ele abre não aceita estilo. O valor enviado à API continua sendo `YYYY-MM-DD`, e a conversão está em funções puras testadas (`maskBrDate`, `parseBrDate`, `calendarWeeks`).
+
+## 26. Testes do frontend com TDD e E2E
+
+**Como foi feito:** red → green em fatias verticais (um teste falhando, o código mínimo para passar, o próximo teste), só nas interfaces públicas combinadas antes:
+
+| Seam | Testes | O que pega |
+|---|---|---|
+| Regras puras (`test/unit`) | Schema Zod (as mesmas mensagens do Rails), datas por extenso em qualquer fuso, destaque, `FormData` | Regras de negócio e formatação |
+| Composables (`test/nuxt`) | `useProjectList` contra um backend falso que imita a API (headers de paginação, filtro, `PATCH`, `DELETE`, latência e falhas); `useSearchHistory` | Paginação, remoção sem pular itens, rollback do favorito, respostas fora de ordem, regras do histórico |
+| Componentes (`test/nuxt`) | `ProjectCard`, `ProjectForm`, `ProjectDeleteModal` montados com `mountSuspended` | O que o usuário vê e os eventos emitidos: botão Salvar desabilitado, erros do 422 nos campos, menu do card |
+| Ponta a ponta (`e2e/tests`) | Playwright contra a API real: lista vazia, criar com capa, formulário inválido, favoritar e filtrar, ordenar por prazo, buscar com destaque e histórico, editar removendo a capa, remover pelo modal | A integração que os outros testes simulam: CORS, upload multipart, headers de paginação, rotas do Nuxt e o banco de verdade |
+
+**Mock só na fronteira:** o backend falso fica no nível do HTTP (`registerEndpoint` do `@nuxt/test-utils`). O service e o composable rodam de verdade, e os testes não quebram se a implementação mudar.
+
+**Como o E2E funciona:**
+- **Banco limpo a cada teste:** uma fixture automática roda `bin/rails e2e:reset` (`TRUNCATE` das tabelas de projetos e do Active Storage) antes de cada teste. O rake task se recusa a rodar fora de `RAILS_ENV=test`, e a API não ganhou nenhum endpoint de teste.
+- **Guarda contra o banco errado:** depois de limpar, a fixture confere em `GET /projects/count` que a API em `:3000` está vazia. Se um `bin/dev` (banco de desenvolvimento) estiver ocupando a porta, o teste falha com uma mensagem clara, em vez de apagar ou ler dados reais.
+- **Contra o build de produção:** o frontend testado é o site estático do `nuxt generate` (o mesmo que o Cloudflare Pages serve), servido pelo `serve` em modo SPA. No começo os testes rodavam contra o `nuxt dev`. Ele compila páginas e otimiza dependências na primeira visita, e no CI isso estourava o timeout do primeiro teste e deixava a suíte instável. Com o build, essa instabilidade sumiu e a suíte ficou mais rápida (de ~52 s para ~33 s).
+- **Testes em série:** como compartilham o banco, rodam com 1 worker. Os dados de partida são criados pela própria API (`POST /projects`), e só o teste de criação passa pelo formulário.
+- **Seletores por role e label** (`getByRole`, `getByLabel`), sem classes CSS: o teste encontra os elementos como um usuário ou um leitor de tela. Isso levou a uma melhoria de acessibilidade: a capa do card ganhou `alt="Capa do projeto <nome>"`.
+- **Datas relativas a hoje** nos testes de ordenação, para eles continuarem válidos com o passar do tempo.
+- **Falhas:** trace e screenshot ficam guardados só dos testes que falharem (`trace: 'retain-on-failure'`). Localmente, `npm run report` abre o relatório; no CI, o relatório vai como artefato do job.
+
+**Fidelidade visual:** não é coberta por testes automatizados. Foi verificada no Chrome, estado por estado (lista, select aberto, menu, modal, favoritos, skeleton, empty state, formulários com erro, edição com capa, busca e histórico), em 1920 px e no celular.
+
+**Ponto de atenção do Vitest 5:** o cache persistente de módulos (`fsModuleCache`) não percebe composables novos, que ficam "not defined" nos testes até o cache ser limpo. Ele está desligado no projeto `nuxt` do `vitest.config.ts`.

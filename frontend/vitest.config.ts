@@ -18,6 +18,9 @@ export default defineConfig({
           name: 'nuxt',
           include: ['test/nuxt/**/*.{test,spec}.ts'],
           environment: 'nuxt',
+          // The persistent transform cache does not notice new auto-imports (a new
+          // composable stays "not defined" in tests until the cache is cleared)
+          fsModuleCache: false,
           environmentOptions: {
             nuxt: { domEnvironment: 'happy-dom' },
           },
