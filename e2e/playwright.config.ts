@@ -6,15 +6,17 @@ const APP_URL = 'http://localhost:3001'
 
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  // The tests share one database (emptied before each test), so they run one at a time
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  workers: isCI ? 1 : undefined,
   reporter: isCI ? [['github'], ['html', { open: 'never' }]] : 'html',
 
   use: {
     baseURL: APP_URL,
-    trace: 'on-first-retry',
+    // Kept only for failed tests: open with `npm run report` (or `npx playwright show-trace <trace.zip>`)
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
 

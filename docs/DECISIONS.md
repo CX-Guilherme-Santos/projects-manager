@@ -29,7 +29,7 @@ Registro das principais escolhas do projeto: o contexto, o que foi decidido, o q
 23. [Busca: rota própria, histórico local e destaque sem `v-html`](#23-busca-rota-própria-histórico-local-e-destaque-sem-v-html)
 24. [Estados de carregamento](#24-estados-de-carregamento)
 25. [Fidelidade ao Figma sem o Dev Mode](#25-fidelidade-ao-figma-sem-o-dev-mode)
-26. [Testes do frontend com TDD](#26-testes-do-frontend-com-tdd)
+26. [Testes do frontend com TDD e E2E](#26-testes-do-frontend-com-tdd-e-e2e)
 
 ---
 
@@ -227,7 +227,7 @@ total-pages: 2
 | Model | RSpec + shoulda-matchers | Validações, escopos de busca, filtro e ordenação |
 | API | RSpec (request specs) | Formato das respostas, paginação, filtros combinados, upload e remoção da capa, erros 400, 404 e 422 |
 | Frontend | Vitest, separado em `unit` (sem Nuxt) e `nuxt` (com o runtime do Nuxt) | Schemas, utilitários e componentes |
-| Ponta a ponta | Playwright, subindo o Rails e o Nuxt | Fluxos completos pelo navegador |
+| Ponta a ponta | Playwright, subindo o Rails (`RAILS_ENV=test`) e o Nuxt | Os caminhos felizes de todos os requisitos pelo navegador, contra a API real (seção 26) |
 
 **RSpec em vez do Minitest padrão do Rails:** é o framework mais usado em times Rails, e a organização em `describe` (endpoint ou método) e `context` (cenário) deixa cada spec lendo como uma especificação. Os dados de teste vêm de uma factory (`FactoryBot`, com o Faker em pt-BR) com traits `:favorite` e `:with_cover`, em vez de fixtures. O `shoulda-matchers` cobre as validações simples, e as regras próprias (contagem de palavras, datas, capa) têm exemplos explícitos.
 
@@ -431,7 +431,7 @@ O arquivo do Figma estava disponível só para visualização, sem o Dev Mode (q
 - **A ilustração do card sem capa** foi redesenhada em SVG a partir da imagem, porque não havia o arquivo original.
 - **Os campos de data** são um componente próprio (`BaseDateInput`): texto com máscara dd/mm/aaaa e um calendário em pt-BR com as cores do projeto. Clicar no campo abre o calendário sem tirar o foco dele, então dá para digitar ou escolher. Pelo teclado, a seta para baixo entra no calendário (setas, Enter, Esc), e o Tab segue para o próximo campo e fecha o calendário. A primeira versão usava o `<input type="date">` nativo, mas ele segue o idioma do navegador (mm/dd/yyyy num Chrome em inglês) e o calendário que ele abre não aceita estilo. O valor enviado à API continua sendo `YYYY-MM-DD`, e a conversão está em funções puras testadas (`maskBrDate`, `parseBrDate`, `calendarWeeks`).
 
-## 26. Testes do frontend com TDD
+## 26. Testes do frontend com TDD e E2E
 
 **Como foi feito:** red → green em fatias verticais (um teste falhando, o código mínimo para passar, o próximo teste), só nas interfaces públicas combinadas antes:
 
@@ -440,8 +440,17 @@ O arquivo do Figma estava disponível só para visualização, sem o Dev Mode (q
 | Regras puras (`test/unit`) | Schema Zod (as mesmas mensagens do Rails), datas por extenso em qualquer fuso, destaque, `FormData` | Regras de negócio e formatação |
 | Composables (`test/nuxt`) | `useProjectList` contra um backend falso que imita a API (headers de paginação, filtro, `PATCH`, `DELETE`, latência e falhas); `useSearchHistory` | Paginação, remoção sem pular itens, rollback do favorito, respostas fora de ordem, regras do histórico |
 | Componentes (`test/nuxt`) | `ProjectCard`, `ProjectForm`, `ProjectDeleteModal` montados com `mountSuspended` | O que o usuário vê e os eventos emitidos: botão Salvar desabilitado, erros do 422 nos campos, menu do card |
+| Ponta a ponta (`e2e/tests`) | Playwright contra a API real: lista vazia, criar com capa, formulário inválido, favoritar e filtrar, ordenar por prazo, buscar com destaque e histórico, editar removendo a capa, remover pelo modal | A integração que os outros testes simulam: CORS, upload multipart, headers de paginação, rotas do Nuxt e o banco de verdade |
 
 **Mock só na fronteira:** o backend falso fica no nível do HTTP (`registerEndpoint` do `@nuxt/test-utils`). O service e o composable rodam de verdade, e os testes não quebram se a implementação mudar.
+
+**Como o E2E funciona:**
+- **Banco limpo a cada teste:** uma fixture automática roda `bin/rails e2e:reset` (`TRUNCATE` das tabelas de projetos e do Active Storage) antes de cada teste. O rake task se recusa a rodar fora de `RAILS_ENV=test`, e a API não ganhou nenhum endpoint de teste.
+- **Guarda contra o banco errado:** depois de limpar, a fixture confere em `GET /projects/count` que a API em `:3000` está vazia. Se um `bin/dev` (banco de desenvolvimento) estiver ocupando a porta, o teste falha com uma mensagem clara, em vez de apagar ou ler dados reais.
+- **Testes em série:** como compartilham o banco, rodam com 1 worker. Os dados de partida são criados pela própria API (`POST /projects`), e só o teste de criação passa pelo formulário.
+- **Seletores por role e label** (`getByRole`, `getByLabel`), sem classes CSS: o teste encontra os elementos como um usuário ou um leitor de tela. Isso levou a uma melhoria de acessibilidade: a capa do card ganhou `alt="Capa do projeto <nome>"`.
+- **Datas relativas a hoje** nos testes de ordenação, para eles continuarem válidos com o passar do tempo.
+- **Falhas:** trace e screenshot ficam guardados só dos testes que falharem (`trace: 'retain-on-failure'`). Localmente, `npm run report` abre o relatório; no CI, o relatório vai como artefato do job.
 
 **Fidelidade visual:** não é coberta por testes automatizados. Foi verificada no Chrome, estado por estado (lista, select aberto, menu, modal, favoritos, skeleton, empty state, formulários com erro, edição com capa, busca e histórico), em 1920 px e no celular.
 

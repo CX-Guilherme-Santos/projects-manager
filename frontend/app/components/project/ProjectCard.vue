@@ -11,7 +11,7 @@ const emit = defineEmits<{ toggleFavorite: [], remove: [] }>()
       <img
         v-if="project.cover_url"
         :src="project.cover_url"
-        alt=""
+        :alt="`Capa do projeto ${project.name}`"
         class="project-card__image position-absolute top-0 start-0 w-100 h-100"
         loading="lazy"
       >
