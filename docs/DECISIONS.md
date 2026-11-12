@@ -88,6 +88,8 @@ Registro das principais escolhas do projeto: o contexto, o que foi decidido, o q
 
 **Por quê:** o Heroku sobe Rails sem Docker e o dyno Basic não "dorme", então a primeira visita do avaliador não espera a aplicação acordar. O R2 fala a API do S3, então o Active Storage usa o serviço `S3` padrão apontando para outro endpoint, e não cobra transferência de saída.
 
+**Ponto de atenção:** as versões recentes do `aws-sdk-s3` mandam um checksum CRC32 em todo upload, além do `Content-MD5` que o Active Storage já envia. O R2 recusa os dois juntos ("You can only specify one non-default checksum at a time"), e o upload de capa falhava em produção com erro 500. O serviço `r2` do `config/storage.yml` usa `request_checksum_calculation` e `response_checksum_validation` com `when_required`, como a Cloudflare recomenda. A integridade continua garantida pelo MD5. Os testes não pegaram o problema porque usam o serviço Disk.
+
 **Descartado:**
 - **Fly.io:** sem plano gratuito para contas novas e com Postgres gerenciado caro (a partir de ~US$ 38/mês).
 - **Render free:** o servidor dorme (~50 s na primeira requisição) e o Postgres gratuito expira em 30 dias.
