@@ -36,12 +36,14 @@ export default defineConfig({
       timeout: 120_000,
     },
     {
-      command: 'npm run dev',
-      cwd: '../frontend',
+      // The production build (the same static site Cloudflare Pages serves), not
+      // `nuxt dev`: the dev server compiles pages and optimizes dependencies on the
+      // first visit, which made the first test slow and flaky on CI
+      command: 'npm --prefix ../frontend run generate && npx serve --single --no-clipboard --no-request-logging --listen 3001 ../frontend/dist',
       url: APP_URL,
       env: { NUXT_PUBLIC_API_BASE: API_URL },
       reuseExistingServer: !isCI,
-      timeout: 120_000,
+      timeout: 180_000,
     },
   ],
 })

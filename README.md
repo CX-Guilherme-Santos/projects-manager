@@ -116,7 +116,9 @@ No frontend, os testes ficam em duas pastas:
 - `test/unit/`: funções, schemas e utilitários, sem o Nuxt (rápido)
 - `test/nuxt/`: componentes e composables que precisam do Nuxt (auto-imports, `runtimeConfig`, rotas)
 
-O Playwright sobe o Rails (em `RAILS_ENV=test`) e o Nuxt sozinho. Se o `bin/dev` já estiver rodando, ele reaproveita os servidores.
+O Playwright sobe sozinho o Rails (em `RAILS_ENV=test`) e o build de produção do frontend (`nuxt generate` servido na porta 3001). Pare o `bin/dev` ou o `docker compose` antes, porque eles ocupam as mesmas portas com o banco de desenvolvimento.
 Antes da primeira vez, crie o banco de teste: `cd backend && RAILS_ENV=test bin/rails db:prepare`.
+
+Quando um teste falha, o trace e o screenshot ficam em `e2e/test-results/`. Para abrir o relatório, rode `cd e2e && npm run report`. Para abrir o trace de um teste só, rode `npx playwright show-trace test-results/<teste>/trace.zip`. No CI, o relatório vai como artefato `playwright-report` do job.
 
 O CI (GitHub Actions) tem três workflows: backend e frontend rodam só quando a sua pasta muda; o E2E roda em todo push e PR.
