@@ -1,0 +1,31 @@
+pt-BR:
+  activerecord:
+    models:
+      project: Projeto
+    attributes:
+      project:
+        name: Nome do projeto
+        client: Cliente
+        start_date: Data de início
+        end_date: Data final
+        cover: Capa do projeto
+    errors:
+      models:
+        project:
+          attributes:
+            name:
+              too_few_words: Por favor, digite ao menos duas palavras
+              too_long: Use no máximo %{count} caracteres
+            client:
+              too_few_words: Por favor, digite ao menos uma palavra
+              too_long: Use no máximo %{count} caracteres
+            start_date:
+              blank: Selecione uma data válida
+            end_date:
+              blank: Selecione uma data válida
+              before_start_date: Selecione uma data posterior à data de início
+            cover:
+              invalid_content_type: Escolha uma imagem .jpg ou .png
+              too_large: A imagem deve ter no máximo %{count} MB
+  errors:
+    format: "%{message}"

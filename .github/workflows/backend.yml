@@ -4,7 +4,7 @@ on:
   pull_request:
     paths: ["backend/**", ".github/workflows/backend.yml"]
   push:
-    branches: [main]
+    branches: [main, develop]
     paths: ["backend/**", ".github/workflows/backend.yml"]
 
 concurrency:
@@ -17,6 +17,7 @@ defaults:
 
 jobs:
   scan_ruby:
+    name: Backend · security (Brakeman, bundler-audit)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -33,6 +34,7 @@ jobs:
         run: bin/bundler-audit
 
   lint:
+    name: Backend · lint (RuboCop)
     runs-on: ubuntu-latest
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
@@ -58,6 +60,7 @@ jobs:
         run: bin/rubocop -f github
 
   test:
+    name: Backend · tests (RSpec)
     runs-on: ubuntu-latest
 
     services:
@@ -88,10 +91,11 @@ jobs:
           DB_HOST: localhost
           DB_USERNAME: postgres
           DB_PASSWORD: postgres
-        run: bin/rails db:test:prepare test
+        run: bin/rails db:test:prepare && bundle exec rspec
 
   # Deploys backend/ to Heroku only after every check above passes on main
   deploy:
+    name: Backend · deploy (Heroku)
     needs: [scan_ruby, lint, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest

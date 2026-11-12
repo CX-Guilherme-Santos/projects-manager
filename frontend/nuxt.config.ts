@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 
-  modules: ['@vee-validate/nuxt', '@nuxt/eslint'],
+  modules: ['@vee-validate/nuxt', '@nuxt/eslint', '@nuxt/icon', '@vueuse/nuxt'],
 
   // Used by `nuxt generate` (the Cloudflare build)
   $production: {
@@ -16,6 +16,23 @@ export default defineNuxtConfig({
   // site for Cloudflare Pages (no Node server in production)
   ssr: false,
   devtools: { enabled: true },
+
+  app: {
+    head: {
+      htmlAttrs: { lang: 'pt-BR' },
+      title: 'Gerenciador de Projetos',
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
+        // Font from the Figma design
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Encode+Sans+Semi+Expanded:wght@400;500;600;700&display=swap',
+        },
+      ],
+    },
+  },
 
   css: ['~/assets/scss/main.scss'],
 
@@ -57,5 +74,12 @@ export default defineNuxtConfig({
   // ESLint also handles formatting (no Prettier): 2 spaces, single quotes, no semicolons
   eslint: {
     config: { stylistic: true },
+  },
+
+  // Icons are bundled into the client (static site): no runtime requests to the Iconify API.
+  // Only icons used in the code are included, scanned from the source files.
+  icon: {
+    provider: 'none',
+    clientBundle: { scan: true },
   },
 })

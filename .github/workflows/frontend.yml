@@ -4,7 +4,7 @@ on:
   pull_request:
     paths: ["frontend/**", ".tool-versions", ".github/workflows/frontend.yml"]
   push:
-    branches: [main]
+    branches: [main, develop]
     paths: ["frontend/**", ".tool-versions", ".github/workflows/frontend.yml"]
 
 concurrency:
@@ -17,6 +17,7 @@ defaults:
 
 jobs:
   build:
+    name: Frontend · lint, types, tests (Vitest), build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -29,10 +30,14 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run lint
+      - name: Lint (ESLint)
+        run: npm run lint
 
-      - run: npm run typecheck
+      - name: Type check (vue-tsc)
+        run: npm run typecheck
 
-      - run: npm run test
+      - name: Unit and component tests (Vitest)
+        run: npm run test
 
-      - run: npm run generate:pages
+      - name: Build the static site
+        run: npm run generate:pages
